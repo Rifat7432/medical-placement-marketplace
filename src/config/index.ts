@@ -54,8 +54,8 @@ export default {
           stripe_webhook_url: process.env.STRIPE_WEBHOOK_URL,
           stripe_product_id: process.env.STRIPE_PRODUCT_ID,
      },
-     super_admin: {
-          email: process.env.SUPER_ADMIN_EMAIL,
-          password: process.env.SUPER_ADMIN_PASSWORD,
+    admin: {
+          email: process.env.ADMIN_EMAIL,
+          password: process.env.ADMIN_PASSWORD,
      },
 };

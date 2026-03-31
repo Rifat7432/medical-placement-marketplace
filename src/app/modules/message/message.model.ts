@@ -4,7 +4,8 @@ import { IMessage, MessageModel } from './message.interface';
 const messageSchema = new Schema<IMessage, MessageModel>(
   {
     senderId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    receiverId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    receiverId: { type: Schema.Types.ObjectId, ref: 'User' }, // Optional
+    conversationId: { type: Schema.Types.ObjectId, ref: 'Conversation', required: true },
     content: { type: String, required: true },
     attachments: [{
       url: { type: String },

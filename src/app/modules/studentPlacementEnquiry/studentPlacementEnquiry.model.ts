@@ -16,7 +16,41 @@ const studentPlacementEnquirySchema = new Schema<IStudentPlacementEnquiry, Stude
     preferredCities: { type: String, required: true },
     language: { type: String, required: true },
     documents: [{ type: String }],
-    additionalInformation: { type: String },
+    additionalInformation: { type: String, default: undefined },
+    placementId: [{ type: Schema.Types.ObjectId, ref: 'Placement' }],
+    chosenPlacementId: { type: Schema.Types.ObjectId, ref: 'Placement' },
+    hospitalStatus: {
+      type: String,
+      enum: ['pending', 'approved', 'rejected'],
+      default: 'pending',
+    },
+    studentStatus: {
+      type: String,
+      enum: ['pending', 'matching', 'approved', 'rejected'],
+      default: 'pending',
+    },
+    adminStatus: {
+      type: String,
+      enum: ['approved', 'rejected'],
+    },
+    firstPayment: {
+      type: String,
+      enum: ['pending', 'paid'],
+      default: 'pending',
+    },
+    finalPayment: {
+      type: String,
+      enum: ['pending', 'paid'],
+      default: 'pending',
+    },
+    isVisibleToHospitals: {
+      type: Boolean,
+      default: false,
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true },
 );

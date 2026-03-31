@@ -1,8 +1,9 @@
-import { Document, Model } from 'mongoose';
+import mongoose, { Document, Model } from 'mongoose';
 
 export interface IMessage extends Document {
   senderId: mongoose.Types.ObjectId;
-  receiverId: mongoose.Types.ObjectId;
+  receiverId?: mongoose.Types.ObjectId; // Optional for group chats
+  conversationId: mongoose.Types.ObjectId;
   content: string;
   attachments: { url: string; type: string }[];
   isRead: boolean;

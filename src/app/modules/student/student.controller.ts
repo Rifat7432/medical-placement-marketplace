@@ -25,6 +25,19 @@ const getStudents = catchAsync(async (req, res) => {
   });
 });
 
+const getStudentProfile = catchAsync(async (req, res) => {
+  const user: any = req.user;
+  const result = await StudentService.getStudentProfileFromDB(user.id);
+  if (!result) {
+    throw new AppError(StatusCodes.NOT_FOUND, 'Student not found');
+  }
+  sendResponse(res, {
+    success: true,
+    statusCode: StatusCodes.OK,
+    message: 'Student retrieved successfully',
+    data: result,
+  });
+});
 const getStudent = catchAsync(async (req, res) => {
   const { id } = req.params;
   const result = await StudentService.getStudentById(id);
@@ -74,4 +87,7 @@ export const StudentController = {
   getStudent,
   updateStudent,
   deleteStudent,
+
+
+  getStudentProfile
 };

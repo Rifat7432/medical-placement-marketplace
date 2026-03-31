@@ -1,69 +1,27 @@
-import mongoose from 'mongoose';
+import { IUser } from '../app/modules/user/user.interface';
 import { User } from '../app/modules/user/user.model';
 import config from '../config';
 import { USER_ROLES } from '../enums/user';
-import { logger } from '../shared/logger';
-import colors from 'colors';
-import bcrypt from 'bcrypt';
 
-const usersData = [
-     {
-          name: 'Administrator',
-          email: config.super_admin.email,
-          role: USER_ROLES.SUPER_ADMIN,
-          password: config.super_admin.password,
-          verified: true,
-     },
-     {
-          name: 'User',
-          email: 'user@gmail.com',
-          role: USER_ROLES.STUDENT,
-          password: 'hello123',
-          verified: true,
-     },
-];
-
-// Function to hash passwords
-const hashPassword = async (password: string) => {
-     const salt = await bcrypt.hash(password, Number(config.bcrypt_salt_rounds));
-     return await bcrypt.hash(password, salt);
-};
-
-// Function to seed users
-const seedUsers = async () => {
+export const seedAdmin = async () => {
      try {
-          await User.deleteMany();
+          // Check if admin already exists
+          const existingAdmin = await User.findOne({ role: USER_ROLES.ADMIN, email: config.admin.email });
+          if (existingAdmin) {
+               console.log('Admin already exists');
+               return;
+          }
 
-          const hashedUsersData = await Promise.all(
-               usersData.map(async (user: any) => {
-                    const hashedPassword = await hashPassword(user.password);
-                    return { ...user, password: hashedPassword };
-               }),
-          );
+          // Prepare payload
+          const payload: Partial<IUser> = {
+               email: config.admin.email,
+               password: config.admin.password, // will be hashed inside createUserToDB if you handle hashing there
+               role: USER_ROLES.ADMIN, // set role to admin
+               verified: true,
+          };
 
-          // Insert users into the database
-          await User.insertMany(hashedUsersData);
-          logger.info(colors.green('✨ --------------> Users seeded successfully <-------------- ✨'));
-     } catch (err) {
-          logger.error(colors.red('💥 Error seeding users: 💥'), err);
-     }
-};
-
-// Connect to MongoDB
-mongoose.connect(config.database_url as string);
-
-const seedSuperAdmin = async () => {
-     try {
-          logger.info(colors.cyan('🎨 --------------> Database seeding start <--------------- 🎨'));
-
-          // Start seeding users
-          await seedUsers();
-          logger.info(colors.green('🎉 --------------> Database seeding completed <--------------- 🎉'));
+          await User.create(payload);
      } catch (error) {
-          logger.error(colors.red('🔥 Error creating Super Admin: 🔥'), error);
-     } finally {
-          mongoose.disconnect();
+          console.error('Error seeding admin:', error);
      }
 };
-
-seedSuperAdmin();

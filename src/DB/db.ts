@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import colors from 'colors';
 import { errorLogger, logger } from '../shared/logger';
 import config from '../config';
+import { seedAdmin } from '../seed/seedAdmin';
 
 // Set up MongoDB connection listeners
 export function setupMongooseListeners(): void {
@@ -35,16 +36,17 @@ export async function connectToDatabase(): Promise<void> {
           await mongoose.connect(config.database_url as string, {
                serverSelectionTimeoutMS: 5000,
                heartbeatFrequencyMS: 10000,
-               maxPoolSize: config.node_env === 'production' ? 100 : 10,
-               minPoolSize: config.node_env === 'production' ? 5 : 2,
+               maxPoolSize: 10,
+               minPoolSize: 2,
                connectTimeoutMS: 10000,
                socketTimeoutMS: 45000,
                family: 4, // Force IPv4
-               retryWrites: true,
-               retryReads: true,
+               retryWrites: false,
+               retryReads: false,
           });
           logger.info(colors.bgCyan('🚀 Database connected successfully'));
           setupMongooseListeners();
+          await seedAdmin();
      } catch (error) {
           errorLogger.error(colors.red('Database connection error'), error);
           process.exit(1);

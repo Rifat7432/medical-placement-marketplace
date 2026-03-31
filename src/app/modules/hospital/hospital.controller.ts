@@ -4,16 +4,7 @@ import sendResponse from '../../../shared/sendResponse';
 import { HospitalService } from './hospital.service';
 import AppError from '../../../errors/AppError';
 
-const createHospital = catchAsync(async (req, res) => {
-  const hospitalData = req.body;
-  const result = await HospitalService.createHospitalToDB(hospitalData);
-  sendResponse(res, {
-    success: true,
-    statusCode: StatusCodes.CREATED,
-    message: 'Hospital created successfully',
-    data: result,
-  });
-});
+
 
 const getHospitals = catchAsync(async (req, res) => {
   const result = await HospitalService.getHospitals();
@@ -21,6 +12,17 @@ const getHospitals = catchAsync(async (req, res) => {
     success: true,
     statusCode: StatusCodes.OK,
     message: 'Hospitals retrieved successfully',
+    data: result,
+  });
+});
+
+const getHospitalProfile = catchAsync(async (req, res) => {
+  const user: any = req.user;
+  const result = await HospitalService.getHospitalProfile(user.id);
+  sendResponse(res, {
+    success: true,
+    statusCode: StatusCodes.OK,
+    message: 'Hospital profile retrieved successfully',
     data: result,
   });
 });
@@ -69,9 +71,12 @@ const deleteHospital = catchAsync(async (req, res) => {
 });
 
 export const HospitalController = {
-  createHospital,
+
   getHospitals,
   getHospital,
   updateHospital,
   deleteHospital,
+
+
+  getHospitalProfile
 };

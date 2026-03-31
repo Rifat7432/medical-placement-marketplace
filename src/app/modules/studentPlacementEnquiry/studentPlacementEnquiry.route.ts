@@ -1,12 +1,50 @@
-import express from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import { StudentPlacementEnquiryController } from './studentPlacementEnquiry.controller';
 import { StudentPlacementEnquiryValidation } from './studentPlacementEnquiry.validation';
 import validateRequest from '../../middleware/validateRequest';
+import fileUploadHandler from '../../middleware/fileUploadHandler';
+import uploadMulterFilesToS3 from '../../middleware/uploadMulterFilesToS3';
 
 const router = express.Router();
 
-router.route('/').get(StudentPlacementEnquiryController.getStudentPlacementEnquiries).post(validateRequest(StudentPlacementEnquiryValidation.createStudentPlacementEnquiryZodSchema), StudentPlacementEnquiryController.createStudentPlacementEnquiry);
+router.get('/', StudentPlacementEnquiryController.getStudentPlacementEnquiries);
+router.post(
+     '/',
+     fileUploadHandler(),
+     async (req: Request, res: Response, next: NextFunction) => {
+          try {
+               const uploadedFiles = await uploadMulterFilesToS3(req.files as Record<string, Express.Multer.File[]>);
 
-router.route('/:id').get(StudentPlacementEnquiryController.getStudentPlacementEnquiry).patch(validateRequest(StudentPlacementEnquiryValidation.updateStudentPlacementEnquiryZodSchema), StudentPlacementEnquiryController.updateStudentPlacementEnquiry).delete(StudentPlacementEnquiryController.deleteStudentPlacementEnquiry);
+               const documents: string[] = [];
+
+               for (const fieldName in uploadedFiles) {
+                    const value = uploadedFiles[fieldName];
+
+                    if (Array.isArray(value)) {
+                         value.forEach((file) => documents.push(file.url));
+                    } else {
+                         documents.push(value.url);
+                    }
+               }
+
+               const data = JSON.parse(req.body?.data || '{}');
+
+               req.body = {
+                    ...data,
+                    ...(documents.length > 0 && { documents }),
+               };
+
+               next();
+          } catch (error) {
+               next(error);
+          }
+     },
+     validateRequest(StudentPlacementEnquiryValidation.createStudentPlacementEnquiryZodSchema),
+     StudentPlacementEnquiryController.createStudentPlacementEnquiry,
+);
+
+router.get('/:id', StudentPlacementEnquiryController.getStudentPlacementEnquiry);
+router.patch('/:id', validateRequest(StudentPlacementEnquiryValidation.updateStudentPlacementEnquiryZodSchema), StudentPlacementEnquiryController.updateStudentPlacementEnquiry);
+router.delete('/:id', StudentPlacementEnquiryController.deleteStudentPlacementEnquiry);
 
 export const StudentPlacementEnquiryRouter = router;

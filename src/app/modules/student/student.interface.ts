@@ -4,8 +4,8 @@ export interface IStudent extends Document {
   userId: mongoose.Types.ObjectId;
   fullName?: string;
   phoneNumber?: string;
-  university: string;
-  yearOfStudy: number;
+  university?: string;
+  yearOfStudy?: number;
   preferredSpecialty?: string;
   preferredCities?: string;
   languages?: string;

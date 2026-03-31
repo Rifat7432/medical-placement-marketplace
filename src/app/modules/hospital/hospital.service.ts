@@ -3,17 +3,15 @@ import { IHospital } from './hospital.interface';
 import { Hospital } from './hospital.model';
 import AppError from '../../../errors/AppError';
 
-const createHospitalToDB = async (payload: Partial<IHospital>): Promise<IHospital> => {
-  const hospital = await Hospital.create(payload);
-  if (!hospital) {
-    throw new AppError(StatusCodes.BAD_REQUEST, 'Failed to create hospital');
-  }
-  return hospital;
-};
+
 
 const getHospitals = async (): Promise<IHospital[]> => {
   const hospitals = await Hospital.find();
   return hospitals;
+};
+const getHospitalProfile = async (id: string): Promise<IHospital | null> => {
+  const hospital = await Hospital.findById(id).populate('userId', 'email');
+  return hospital;
 };
 
 const getHospitalById = async (id: string): Promise<IHospital | null> => {
@@ -32,9 +30,11 @@ const deleteHospital = async (id: string): Promise<IHospital | null> => {
 };
 
 export const HospitalService = {
-  createHospitalToDB,
+ 
   getHospitals,
   getHospitalById,
   updateHospital,
   deleteHospital,
+
+  getHospitalProfile
 };

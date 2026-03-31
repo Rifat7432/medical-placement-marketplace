@@ -11,72 +11,49 @@ import config from '../../../config';
 import { jwtHelper } from '../../../helpers/jwtHelper';
 import { Student } from '../student/student.model';
 import { IStudent } from '../student/student.interface';
-import mongoose from 'mongoose';
 import { IHospital } from '../hospital/hospital.interface';
 import { Hospital } from '../hospital/hospital.model';
 
 // create user
 
 // Create student user
-const createStudentToDB = async (payload: Partial<IUser & IStudent>): Promise<IUser> => {
+const createStudentToDB = async (payload: Partial<IUser & IStudent>) => {
      // Check if user already exists
      const user = await User.findOne({ email: payload.email });
      if (user) {
           throw new AppError(StatusCodes.CONFLICT, 'Email already exists');
      }
 
-     const session = await mongoose.startSession();
+     // Development mode without transactions
+     const createUser = await User.create({
+          email: payload.email,
+          password: payload.password,
+          role: USER_ROLES.STUDENT,
+     });
 
-     try {
-          session.startTransaction();
+     await Student.create({
+          userId: createUser._id,
+          phoneNumber: payload.phoneNumber,
+     });
 
-          const createUser = await User.create(
-               [
-                    {
-                         email: payload.email,
-                         password: payload.password,
-                         role: USER_ROLES.STUDENT,
-                    },
-               ],
-               { session },
-          );
-
-          await Student.create(
-               [
-                    {
-                         userId: createUser[0]._id,
-                         phoneNumber: payload.phoneNumber,
-                    },
-               ],
-               { session },
-          );
-
-          await session.commitTransaction();
-          session.endSession();
-
-          if (!createUser) {
-               throw new AppError(StatusCodes.BAD_REQUEST, 'Failed to create user');
-          }
-
-          //send email
-          const otp = generateOTP(4);
-          const values = {
-               name: createUser[0].email, // Use email as name since name field not in schema
-               otp: otp,
-               email: createUser[0].email!,
-          };
-          await User.findOneAndUpdate({ _id: createUser[0]._id }, { $set: { oneTimeCode: otp, OTPExpireAt: new Date(Date.now() + 5 * 60000) } });
-          if (config.node_env === 'production') {
-               const createAccountTemplate = emailTemplate.createAccount(values);
-               await emailHelper.sendEmail(createAccountTemplate);
-          }
-
-          return createUser[0];
-     } catch (error) {
-          await session.abortTransaction();
-          session.endSession();
-          throw error;
+     if (!createUser) {
+          throw new AppError(StatusCodes.BAD_REQUEST, 'Failed to create user');
      }
+
+     //send email
+     const otp = generateOTP(4);
+     const values = {
+          name: createUser.email, // Use email as name since name field not in schema
+          otp: otp,
+          email: createUser.email!,
+     };
+     await User.findOneAndUpdate({ _id: createUser._id }, { $set: { oneTimeCode: otp, OTPExpireAt: new Date(Date.now() + 5 * 60000) } });
+     if (config.node_env === 'production') {
+          const createAccountTemplate = emailTemplate.createAccount(values);
+          await emailHelper.sendEmail(createAccountTemplate);
+     }
+
+     return values;
 };
 
 // Create admin user
@@ -89,65 +66,43 @@ const createHospitalToDB = async (payload: Partial<IUser & IHospital>) => {
           throw new AppError(StatusCodes.CONFLICT, 'Email already exists');
      }
 
-     const session = await mongoose.startSession();
+     // Development mode without transactions
+     const createUser = await User.create({
+          email: payload.email,
+          password: payload.password,
+          role: USER_ROLES.HOSPITAL,
+     });
 
-     try {
-          session.startTransaction();
+     await Hospital.create({
+          userId: createUser._id,
+          phone: payload.phone,
+          hospitalName: payload.hospitalName,
+          address: payload.address,
+          website: payload.website,
+          description: payload.description,
+     });
 
-          const createUser = await User.create(
-               [
-                    {
-                         email: payload.email,
-                         password: payload.password,
-                         role: USER_ROLES.HOSPITAL,
-                    },
-               ],
-               { session },
-          );
-
-          await Hospital.create(
-               [
-                    {
-                         userId: createUser[0]._id,
-                         phone: payload.phone,
-                         hospitalName: payload.hospitalName,
-                         address: payload.address,
-                         website: payload.website,
-                         description: payload.description,
-                    },
-               ],
-               { session },
-          );
-
-          await session.commitTransaction();
-          session.endSession();
-
-          if (!createUser) {
-               throw new AppError(StatusCodes.BAD_REQUEST, 'Failed to create user');
-          }
-
-          //send email
-          const otp = generateOTP(4);
-          const values = {
-               name: createUser[0].email, // Use email as name since name field not in schema
-               otp: otp,
-               email: createUser[0].email!,
-          };
-          await User.findOneAndUpdate({ _id: createUser[0]._id }, { $set: { oneTimeCode: otp, OTPExpireAt: new Date(Date.now() + 5 * 60000) } });
-          if (config.node_env === 'production') {
-               const createAccountTemplate = emailTemplate.createAccount(values);
-               await emailHelper.sendEmail(createAccountTemplate);
-          }
-
-          return createUser[0];
-     } catch (error) {
-          await session.abortTransaction();
-          session.endSession();
-          throw error;
+     if (!createUser) {
+          throw new AppError(StatusCodes.BAD_REQUEST, 'Failed to create user');
      }
+
+     //send email
+     const otp = generateOTP(4);
+     const values = {
+          name: createUser.email, // Use email as name since name field not in schema
+          otp: otp,
+          email: createUser.email!,
+     };
+     await User.findOneAndUpdate({ _id: createUser._id }, { $set: { oneTimeCode: otp, OTPExpireAt: new Date(Date.now() + 5 * 60000) } });
+     if (config.node_env === 'production') {
+          const createAccountTemplate = emailTemplate.createAccount(values);
+          await emailHelper.sendEmail(createAccountTemplate);
+     }
+
+     return values;
 };
 
-const handleGoogleAuthentication = async (payload: { email: string; googleId: string; name: string; email_verified: boolean; picture?: string;}): Promise<any> => {
+const handleGoogleAuthentication = async (payload: { email: string; googleId: string; name: string; email_verified: boolean; picture?: string }): Promise<any> => {
      const { email, googleId, email_verified } = payload;
 
      // Check if the user already exists by Google ID or email
@@ -172,8 +127,16 @@ const handleGoogleAuthentication = async (payload: { email: string; googleId: st
           if (!newUser) {
                throw new AppError(StatusCodes.BAD_REQUEST, 'Failed to create user');
           }
-          if (email_verified) {
-               return { message: 'Account created and verified successfully' };
+          await Student.create({
+               userId: newUser._id,
+          });
+          if (newUser.verified) {
+               const jwtData = { id: newUser._id, role: newUser.role, email: newUser.email };
+               // create token
+               const accessToken = jwtHelper.createToken(jwtData, config.jwt.jwt_secret as Secret, config.jwt.jwt_expire_in as string);
+               const refreshToken = jwtHelper.createToken(jwtData, config.jwt.jwt_refresh_secret as Secret, config.jwt.jwt_refresh_expire_in as string);
+
+               return { accessToken, refreshToken, message: 'Account created and verified successfully' };
           }
           const otp = generateOTP(4);
           const values = {

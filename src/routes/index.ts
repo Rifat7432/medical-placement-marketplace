@@ -5,10 +5,10 @@ import { StudentRouter } from '../app/modules/student/student.route';
 import { HospitalRouter } from '../app/modules/hospital/hospital.route';
 import { PlacementRouter } from '../app/modules/placement/placement.route';
 import { StudentPlacementEnquiryRouter } from '../app/modules/studentPlacementEnquiry/studentPlacementEnquiry.route';
-import { ApplicationRouter } from '../app/modules/application/application.route';
 import { EnquiryRouter } from '../app/modules/enquiry/enquiry.route';
 import { PlacementsEnquiryRouter } from '../app/modules/placementsEnquiry/placementsEnquiry.route';
 import { MessageRouter } from '../app/modules/message/message.route';
+import { ConversationRouter } from '../app/modules/conversation/conversation.route';
 
 const router = express.Router();
 const routes = [
@@ -37,10 +37,6 @@ const routes = [
           route: StudentPlacementEnquiryRouter,
      },
      {
-          path: '/applications',
-          route: ApplicationRouter,
-     },
-     {
           path: '/enquiries',
           route: EnquiryRouter,
      },
@@ -51,6 +47,10 @@ const routes = [
      {
           path: '/messages',
           route: MessageRouter,
+     },
+     {
+          path: '/conversations',
+          route: ConversationRouter,
      },
 ];
 

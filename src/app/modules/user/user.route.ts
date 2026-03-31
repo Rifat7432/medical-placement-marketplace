@@ -5,7 +5,7 @@ import { UserValidation } from './user.validation';
 import auth from '../../middleware/auth';
 import fileUploadHandler from '../../middleware/fileUploadHandler';
 import validateRequest from '../../middleware/validateRequest';
-import moveImagesVideosToS3 from '../../middleware/moveImagesVideosToS3';
+import moveImagesVideosToS3 from '../../middleware/uploadMulterFilesToS3';
 // import moveImagesVideosToS3 from '../../middleware/moveImagesVideosToS3';
 const router = express.Router();
 
@@ -16,25 +16,25 @@ router.route('/block/:id').delete(auth(USER_ROLES.ADMIN), UserController.blockUs
 // user and admin routes
 router.route('/profile').get(auth(USER_ROLES.ADMIN, USER_ROLES.STUDENT), UserController.getUserProfile).patch(
      auth(USER_ROLES.ADMIN, USER_ROLES.STUDENT),
-     fileUploadHandler(),
-     async (req: Request, res: Response, next: NextFunction) => {
-          try {
-               // 🔹 Upload image/video files from local → S3
-               const s3Uploads = await moveImagesVideosToS3(req.files);
+     // fileUploadHandler(),
+     // async (req: Request, res: Response, next: NextFunction) => {
+     //      try {
+     //           // 🔹 Upload image/video files from local → S3
+     //           const s3Uploads = await moveImagesVideosToS3(req.files);
 
-               // pick S3 URL (single or first item if multiple)
-               const image = Array.isArray(s3Uploads.image) ? s3Uploads.image[0].url : s3Uploads.image?.url;
+     //           // pick S3 URL (single or first item if multiple)
+     //           const image = Array.isArray(s3Uploads.image) ? s3Uploads.image[0].url : s3Uploads.image?.url;
 
-               // merge request body
-               const data = JSON.parse(req.body?.data || '{}');
-               // normalize legacy fields on multipart payload
-               req.body = image ? { image, ...data } : { ...data };
+     //           // merge request body
+     //           const data = JSON.parse(req.body?.data || '{}');
+     //           // normalize legacy fields on multipart payload
+     //           req.body = image ? { image, ...data } : { ...data };
 
-               next();
-          } catch (error) {
-               next(error);
-          }
-     },
+     //           next();
+     //      } catch (error) {
+     //           next(error);
+     //      }
+     // },
      validateRequest(UserValidation.updateUserZodSchema),
      UserController.updateProfile,
 );

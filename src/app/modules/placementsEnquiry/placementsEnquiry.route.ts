@@ -3,7 +3,7 @@ import { PlacementsEnquiryController } from './placementsEnquiry.controller';
 import { PlacementsEnquiryValidation } from './placementsEnquiry.validation';
 import validateRequest from '../../middleware/validateRequest';
 import fileUploadHandler from '../../middleware/fileUploadHandler';
-import moveImagesVideosToS3 from '../../middleware/moveImagesVideosToS3';
+import uploadMulterFilesToS3 from '../../middleware/uploadMulterFilesToS3';
 
 const router = express.Router();
 
@@ -12,16 +12,25 @@ router.post(
      fileUploadHandler(),
      async (req: Request, res: Response, next: NextFunction) => {
           try {
-               // 🔹 Upload image/video files from local → S3
-               const s3Uploads = await moveImagesVideosToS3(req.files);
+               const uploadedFiles = await uploadMulterFilesToS3(req.files as Record<string, Express.Multer.File[]>);
+               const documents: string[] = [];
 
-               // pick S3 URL (single or first item if multiple)
-               const image = Array.isArray(s3Uploads.image) ? s3Uploads.image[0].url : s3Uploads.image?.url;
+               for (const fieldName in uploadedFiles) {
+                    const value = uploadedFiles[fieldName];
 
-               // merge request body
+                    if (Array.isArray(value)) {
+                         value.forEach((file) => documents.push(file.url));
+                    } else {
+                         documents.push(value.url);
+                    }
+               }
+
                const data = JSON.parse(req.body?.data || '{}');
-               // normalize legacy fields on multipart payload
-               req.body = image ? { image, ...data } : { ...data };
+
+               req.body = {
+                    ...data,
+                    ...(documents.length > 0 && { documents }),
+               };
 
                next();
           } catch (error) {
