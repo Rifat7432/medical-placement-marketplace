@@ -6,7 +6,8 @@ import AppError from '../../../errors/AppError';
 
 const createStudentPlacementEnquiry = catchAsync(async (req, res) => {
   const studentPlacementEnquiryData = req.body;
-  const result = await StudentPlacementEnquiryService.createStudentPlacementEnquiryToDB(studentPlacementEnquiryData);
+  const studentId = req.user?.id;
+  const result = await StudentPlacementEnquiryService.createStudentPlacementEnquiryToDB(studentId, studentPlacementEnquiryData);
   sendResponse(res, {
     success: true,
     statusCode: StatusCodes.CREATED,
@@ -16,7 +17,27 @@ const createStudentPlacementEnquiry = catchAsync(async (req, res) => {
 });
 
 const getStudentPlacementEnquiries = catchAsync(async (req, res) => {
-  const result = await StudentPlacementEnquiryService.getStudentPlacementEnquiries();
+    const studentId = req.user?.id;
+  const result = await StudentPlacementEnquiryService.getStudentPlacementEnquiries(studentId);
+  sendResponse(res, {
+    success: true,
+    statusCode: StatusCodes.OK,
+    message: 'Student placement enquiries retrieved successfully',
+    data: result,
+  });
+});
+const getStudentPlacementEnquiriesForHospital = catchAsync(async (req, res) => {
+    const hospitalId = req.user?.id;
+  const result = await StudentPlacementEnquiryService.getStudentPlacementEnquiriesForHospital(hospitalId);
+  sendResponse(res, {
+    success: true,
+    statusCode: StatusCodes.OK,
+    message: 'Student placement enquiries retrieved successfully',
+    data: result,
+  });
+});
+const getStudentPlacementEnquiriesForAdmin = catchAsync(async (req, res) => {
+  const result = await StudentPlacementEnquiryService.getStudentPlacementEnquiriesForAdmin();
   sendResponse(res, {
     success: true,
     statusCode: StatusCodes.OK,
@@ -27,7 +48,8 @@ const getStudentPlacementEnquiries = catchAsync(async (req, res) => {
 
 const getStudentPlacementEnquiry = catchAsync(async (req, res) => {
   const { id } = req.params;
-  const result = await StudentPlacementEnquiryService.getStudentPlacementEnquiryById(id);
+  const user = req.user;
+  const result = await StudentPlacementEnquiryService.getStudentPlacementEnquiryById(id, user);
   if (!result) {
     throw new AppError(StatusCodes.NOT_FOUND, 'Student placement enquiry not found');
   }
@@ -71,6 +93,8 @@ const deleteStudentPlacementEnquiry = catchAsync(async (req, res) => {
 export const StudentPlacementEnquiryController = {
   createStudentPlacementEnquiry,
   getStudentPlacementEnquiries,
+  getStudentPlacementEnquiriesForAdmin,
+  getStudentPlacementEnquiriesForHospital,
   getStudentPlacementEnquiry,
   updateStudentPlacementEnquiry,
   deleteStudentPlacementEnquiry,

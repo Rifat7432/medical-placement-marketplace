@@ -4,17 +4,21 @@ import { StudentPlacementEnquiryValidation } from './studentPlacementEnquiry.val
 import validateRequest from '../../middleware/validateRequest';
 import fileUploadHandler from '../../middleware/fileUploadHandler';
 import uploadMulterFilesToS3 from '../../middleware/uploadMulterFilesToS3';
+import auth from '../../middleware/auth';
+import { USER_ROLES } from '../../../enums/user';
 
 const router = express.Router();
 
-router.get('/', StudentPlacementEnquiryController.getStudentPlacementEnquiries);
+router.get('/', auth(USER_ROLES.STUDENT), StudentPlacementEnquiryController.getStudentPlacementEnquiries);
+router.get('/admin', auth(USER_ROLES.ADMIN), StudentPlacementEnquiryController.getStudentPlacementEnquiriesForAdmin);
+router.get('/hospital', auth(USER_ROLES.HOSPITAL), StudentPlacementEnquiryController.getStudentPlacementEnquiriesForHospital);
 router.post(
      '/',
+     auth(USER_ROLES.STUDENT),
      fileUploadHandler(),
      async (req: Request, res: Response, next: NextFunction) => {
           try {
                const uploadedFiles = await uploadMulterFilesToS3(req.files as Record<string, Express.Multer.File[]>);
-
                const documents: string[] = [];
 
                for (const fieldName in uploadedFiles) {
@@ -43,7 +47,7 @@ router.post(
      StudentPlacementEnquiryController.createStudentPlacementEnquiry,
 );
 
-router.get('/:id', StudentPlacementEnquiryController.getStudentPlacementEnquiry);
+router.get('/:id', auth(USER_ROLES.STUDENT, USER_ROLES.ADMIN, USER_ROLES.HOSPITAL), StudentPlacementEnquiryController.getStudentPlacementEnquiry);
 router.patch('/:id', validateRequest(StudentPlacementEnquiryValidation.updateStudentPlacementEnquiryZodSchema), StudentPlacementEnquiryController.updateStudentPlacementEnquiry);
 router.delete('/:id', StudentPlacementEnquiryController.deleteStudentPlacementEnquiry);
 

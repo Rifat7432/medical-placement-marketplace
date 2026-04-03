@@ -17,12 +17,14 @@ export interface IStudentPlacementEnquiry extends Document {
      documents: string[];
      additionalInformation?: string;
 
+     stage: 'awaiting for payment' | 'matching required' | 'awaiting response' | 'completed';
+
      placementId?: [mongoose.Types.ObjectId];
      chosenPlacementId?: mongoose.Types.ObjectId;
 
-     hospitalStatus: 'pending' |  'approved' | 'rejected';
+     hospitalStatus: 'pending' | 'approved' | 'rejected';
      studentStatus: 'pending' | 'matching' | 'approved' | 'rejected';
-     adminStatus: 'approved' | 'rejected';
+     adminStatus: 'pending' | 'approved' | 'rejected';
 
      firstPayment: 'pending' | 'paid';
      finalPayment: 'pending' | 'paid';

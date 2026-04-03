@@ -3,7 +3,7 @@ import { IStudentPlacementEnquiry, StudentPlacementEnquiryModel } from './studen
 
 const studentPlacementEnquirySchema = new Schema<IStudentPlacementEnquiry, StudentPlacementEnquiryModel>(
   {
-    studentId: { type: Schema.Types.ObjectId, ref: 'Student', required: true, index: true },
+    studentId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     email: { type: String, required: true },
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
@@ -17,8 +17,15 @@ const studentPlacementEnquirySchema = new Schema<IStudentPlacementEnquiry, Stude
     language: { type: String, required: true },
     documents: [{ type: String }],
     additionalInformation: { type: String, default: undefined },
+
+
     placementId: [{ type: Schema.Types.ObjectId, ref: 'Placement' }],
     chosenPlacementId: { type: Schema.Types.ObjectId, ref: 'Placement' },
+
+
+    stage:{type: String, enum: ['awaiting for payment', 'matching required', 'awaiting response', 'completed'], default: 'awaiting for payment'},
+
+
     hospitalStatus: {
       type: String,
       enum: ['pending', 'approved', 'rejected'],
@@ -31,8 +38,10 @@ const studentPlacementEnquirySchema = new Schema<IStudentPlacementEnquiry, Stude
     },
     adminStatus: {
       type: String,
-      enum: ['approved', 'rejected'],
+      enum: ['approved', 'rejected', 'pending'],
+      default: 'pending',
     },
+
     firstPayment: {
       type: String,
       enum: ['pending', 'paid'],
@@ -43,6 +52,7 @@ const studentPlacementEnquirySchema = new Schema<IStudentPlacementEnquiry, Stude
       enum: ['pending', 'paid'],
       default: 'pending',
     },
+    
     isVisibleToHospitals: {
       type: Boolean,
       default: false,

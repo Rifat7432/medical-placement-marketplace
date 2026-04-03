@@ -27,12 +27,14 @@ export default {
           AWS_BUCKET: process.env.AWS_BUCKET,
      },
      email: {
-          email_header: process.env.EMAIL_HEADER_NAME,
-          from: process.env.EMAIL_FROM,
-          user: process.env.EMAIL_USER,
-          port: process.env.EMAIL_PORT,
-          host: process.env.EMAIL_HOST,
-          pass: process.env.EMAIL_PASS,
+          emailHeader: process.env.EMAIL_HEADER_NAME || 'Medical Placement Marketplace',
+          from: process.env.EMAIL_FROM || '',
+          user: process.env.EMAIL_USER || '',
+
+          // Mailgun-specific configuration
+          apiKey: process.env.EMAIL_API_KEY || '',
+          domain: process.env.EMAIL_DOMAIN || '',
+          endpoint: process.env.EMAIL_ENDPOINT || 'https://api.mailgun.net',
      },
      express_sessoin: process.env.EXPRESS_SESSION_SECRET_KEY,
      social: {
