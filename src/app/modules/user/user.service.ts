@@ -33,7 +33,7 @@ const createStudentToDB = async (payload: Partial<IUser & IStudent>) => {
 
      await Student.create({
           userId: createUser._id,
-          phoneNumber: payload.phoneNumber,
+          phoneNumber: payload?.phoneNumber,
      });
 
      if (!createUser) {
