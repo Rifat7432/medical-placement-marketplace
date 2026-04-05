@@ -8,10 +8,10 @@ import { USER_ROLES } from '../../../enums/user';
 const router = express.Router();
 
 router.get('/hospital', auth(USER_ROLES.HOSPITAL), PlacementController.getPlacements);
-router.post('/', validateRequest(PlacementValidation.createPlacementZodSchema), PlacementController.createPlacement);
+router.post('/', auth(USER_ROLES.HOSPITAL, USER_ROLES.ADMIN), validateRequest(PlacementValidation.createPlacementZodSchema), PlacementController.createPlacement);
 
 router.get('/:id', PlacementController.getPlacement);
-router.patch('/:id', validateRequest(PlacementValidation.updatePlacementZodSchema), PlacementController.updatePlacement);
-router.delete('/:id', PlacementController.deletePlacement);
+router.patch('/:id', auth(USER_ROLES.HOSPITAL, USER_ROLES.ADMIN), validateRequest(PlacementValidation.updatePlacementZodSchema), PlacementController.updatePlacement);
+router.delete('/:id', auth(USER_ROLES.HOSPITAL, USER_ROLES.ADMIN), PlacementController.deletePlacement);
 
 export const PlacementRouter = router;

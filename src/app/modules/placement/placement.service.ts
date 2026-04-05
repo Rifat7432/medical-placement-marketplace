@@ -2,9 +2,17 @@ import { StatusCodes } from 'http-status-codes';
 import { IPlacement } from './placement.interface';
 import { Placement } from './placement.model';
 import AppError from '../../../errors/AppError';
+import { User } from '../user/user.model';
+import { USER_ROLES } from '../../../enums/user';
 
 const createPlacementToDB = async (payload: Partial<IPlacement>, hospitalId: string): Promise<IPlacement> => {
-     const placement = await Placement.create({ ...payload, hospitalId });
+     const isUserExist = await User.findOne({ _id: hospitalId });
+
+     if (!isUserExist) {
+          throw new AppError(StatusCodes.NOT_FOUND, 'Hospital user not found');
+     }
+
+     const placement = await Placement.create({ ...payload, ...(isUserExist.role === USER_ROLES.ADMIN ? {} : { hospitalId }) });
      if (!placement) {
           throw new AppError(StatusCodes.BAD_REQUEST, 'Failed to create placement');
      }
@@ -12,7 +20,7 @@ const createPlacementToDB = async (payload: Partial<IPlacement>, hospitalId: str
 };
 
 const getPlacements = async (id: string): Promise<IPlacement[]> => {
-     const placements = await Placement.find({hospitalId: id});
+     const placements = await Placement.find({ hospitalId: id });
      return placements;
 };
 

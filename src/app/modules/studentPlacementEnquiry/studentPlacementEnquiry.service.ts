@@ -163,27 +163,6 @@ const getStudentPlacementEnquiryById = async (id: string, user: JwtPayload): Pro
           {
                $lookup: {
                     from: 'placements',
-                    localField: 'placementId',
-                    foreignField: '_id',
-                    as: 'placementData',
-                    pipeline: [
-                         {
-                              $lookup: {
-                                   from: 'hospitals',
-                                   localField: 'hospitalId',
-                                   foreignField: '_id',
-                                   as: 'hospitalData',
-                              },
-                         },
-                         {
-                              $unwind: { path: '$hospitalData', preserveNullAndEmptyArrays: true },
-                         },
-                    ],
-               },
-          },
-          {
-               $lookup: {
-                    from: 'placements',
                     localField: 'chosenPlacementId',
                     foreignField: '_id',
                     as: 'chosenPlacementData',

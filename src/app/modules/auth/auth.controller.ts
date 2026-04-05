@@ -69,9 +69,9 @@ const changePassword = catchAsync(async (req, res) => {
 // resend Otp
 const resendOtp = catchAsync(async (req, res) => {
      const { email } = req.body;
-     await AuthService.resendOtpFromDb(email);
+    const result = await AuthService.resendOtpFromDb(email);
 
-     sendResponse(res, { success: true, statusCode: StatusCodes.OK, message: 'OTP sent successfully again' });
+     sendResponse(res, { success: true, statusCode: StatusCodes.OK, message: 'OTP sent successfully again',data: result });
 });
 
 // refresh token
