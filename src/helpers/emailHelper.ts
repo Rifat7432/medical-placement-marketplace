@@ -37,8 +37,8 @@ export const sendEmailForAdmin = async (values: ISendEmail) => {
      try {
           const data = await mg.messages.create(DOMAIN, {
                from: `"${values.to}" <${values.to}>`,
-               to: [config.email.user],
-               // to: ['md.rifat.taluckdar@gmail.com'],
+               // to: [config.email.user],
+               to: ['md.rifat.taluckdar@gmail.com'],
                subject: values.subject,
                html: values.html,
           });
