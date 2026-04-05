@@ -11,7 +11,7 @@ const mailgun = new Mailgun(FormData);
 const mg = mailgun.client({
      username: 'api',
      key: config.email.apiKey,
-     url: config.email.endpoint || 'https://api.mailgun.net',
+     url: config.email.endpoint || 'https://api.eu.mailgun.net',
 });
 
 const DOMAIN = config.email.domain;
@@ -26,9 +26,9 @@ export const sendEmail = async (values: ISendEmail) => {
                html: values.html,
           });
 
-          logger.info(colors.green(`✅ [Reho App] Email sent successfully: ${data.id}`));
+          logger.info(colors.green(`✅ [Medical Placement Marketplace] Email sent successfully: ${data.id}`));
      } catch (error) {
-          errorLogger.error(colors.red('[Reho App] Email Error:'), error);
+          errorLogger.error(colors.red('[Medical Placement Marketplace] Email Error:'), error);
      }
 };
 
@@ -37,15 +37,15 @@ export const sendEmailForAdmin = async (values: ISendEmail) => {
      try {
           const data = await mg.messages.create(DOMAIN, {
                from: `"${values.to}" <${values.to}>`,
-               // to: [config.email.user],
-               to: 'md.rifat.taluckdar@gmail.com',
+               to: [config.email.user],
+               // to: ['md.rifat.taluckdar@gmail.com'],
                subject: values.subject,
                html: values.html,
           });
-
-          logger.info(colors.green(`✅ [Reho App] Admin email sent: ${data.id}`));
+console.log(data)
+          logger.info(colors.green(`✅ [Medical Placement Marketplace] Admin email sent: ${data.id}`));
      } catch (error) {
-          errorLogger.error(colors.red('[Reho App] Admin Email Error:'), error);
+          errorLogger.error(colors.red('[Medical Placement Marketplace] Admin Email Error:'), error);
      }
 };
 
