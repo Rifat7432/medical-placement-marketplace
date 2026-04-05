@@ -71,6 +71,7 @@ const createHospitalToDB = async (payload: Partial<IUser & IHospital>) => {
           email: payload.email,
           password: payload.password,
           role: USER_ROLES.HOSPITAL,
+          verified: true,
      });
 
      await Hospital.create({
@@ -87,17 +88,13 @@ const createHospitalToDB = async (payload: Partial<IUser & IHospital>) => {
      }
 
      //send email
-     const otp = generateOTP(4);
      const values = {
-          name: createUser.email, // Use email as name since name field not in schema
-          otp: otp,
-          email: createUser.email!,
+          email: createUser.email,
+          password: payload.password as string,
+          hospitalName: payload.hospitalName as string,
      };
-     await User.findOneAndUpdate({ _id: createUser._id }, { $set: { oneTimeCode: otp, OTPExpireAt: new Date(Date.now() + 5 * 60000) } });
-     if (config.node_env === 'production') {
-          const createAccountTemplate = emailTemplate.createAccount(values);
-          await emailHelper.sendEmail(createAccountTemplate);
-     }
+     const createAccountTemplate = emailTemplate.hospitalCredentialsTemplate(values);
+     await emailHelper.sendEmail(createAccountTemplate);
 
      return values;
 };

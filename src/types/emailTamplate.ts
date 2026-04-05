@@ -47,3 +47,8 @@ export type IPlacementsEnquiryEmail = {
   documents?: string[];
   additionalInformation?: string;
 };
+export type IHospitalCredentials = {
+     email: string;
+     password: string;
+     hospitalName: string;
+}

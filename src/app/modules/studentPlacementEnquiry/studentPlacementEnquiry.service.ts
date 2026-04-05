@@ -18,14 +18,65 @@ const getStudentPlacementEnquiries = async (studentId: string): Promise<IStudent
      return studentPlacementEnquiries;
 };
 const getStudentPlacementEnquiriesForAdmin = async (): Promise<IStudentPlacementEnquiry[]> => {
-     const studentPlacementEnquiries = await StudentPlacementEnquiry.find();
+     const studentPlacementEnquiries = await StudentPlacementEnquiry.aggregate([
+          {
+               $lookup: {
+                    from: 'students',
+                    localField: 'studentId',
+                    foreignField: 'userId',
+                    pipeline: [
+                         {
+                              $project: {
+                                   _id: 1,
+                                   fullName: 1,
+                                   phoneNumber: 1,
+                                   university: 1,
+                                   yearOfStudy: 1,
+                                   preferredCities: 1,
+                                   preferredSpecialty: 1,
+                                   languages: 1,
+                                   profileImage: 1,
+                                   // include only the fields you need
+                              },
+                         },
+                    ],
+                    as: 'studentProfile',
+               },
+          },
+          {
+               $unwind: '$studentProfile',
+          },
+          {
+               $lookup: {
+                    from: 'users',
+                    localField: 'studentId',
+                    foreignField: '_id',
+                    pipeline: [
+                         {
+                              $project: {
+                                   _id: 1,
+                                   name: 1,
+                                   email: 1,
+                                   role: 1,
+                                   // include only the fields you need
+                              },
+                         },
+                    ],
+                    as: 'studentUser',
+               },
+          },
+          {
+               $unwind: '$studentUser',
+          },
+     ]);
      return studentPlacementEnquiries;
 };
 const getStudentPlacementEnquiriesForHospital = async (hospitalId: string): Promise<IStudentPlacementEnquiry[]> => {
      const studentPlacementEnquiries = await StudentPlacementEnquiry.aggregate([
           {
                $match: {
-                    chosenPlacementId: { $exists: true, $ne: null },
+                    'chosenPlacementId': { $exists: true, $ne: null },
+                    'chosenPlacement.hospitalId': new mongoose.Types.ObjectId(hospitalId),
                },
           },
           {
@@ -33,6 +84,18 @@ const getStudentPlacementEnquiriesForHospital = async (hospitalId: string): Prom
                     from: 'placements',
                     localField: 'chosenPlacementId',
                     foreignField: '_id',
+                    pipeline: [
+                         {
+                              $project: {
+                                   _id: 1,
+                                   department: 1,
+                                   status: 1,
+                                   durationWeeks: 1,
+                                   deadline: 1,
+                                   startDate: 1,
+                              },
+                         },
+                    ],
                     as: 'chosenPlacement',
                },
           },
@@ -40,9 +103,31 @@ const getStudentPlacementEnquiriesForHospital = async (hospitalId: string): Prom
                $unwind: '$chosenPlacement',
           },
           {
-               $match: {
-                    'chosenPlacement.hospitalId': new mongoose.Types.ObjectId(hospitalId),
+               $lookup: {
+                    from: 'students',
+                    localField: 'studentId',
+                    foreignField: 'userId',
+                    pipeline: [
+                         {
+                              $project: {
+                                   _id: 1,
+                                   fullName: 1,
+                                   phoneNumber: 1,
+                                   university: 1,
+                                   yearOfStudy: 1,
+                                   preferredCities: 1,
+                                   preferredSpecialty: 1,
+                                   languages: 1,
+                                   profileImage: 1,
+                                   // include only the fields you need
+                              },
+                         },
+                    ],
+                    as: 'studentProfile',
                },
+          },
+          {
+               $unwind: '$studentProfile',
           },
      ]);
      return studentPlacementEnquiries as IStudentPlacementEnquiry[];
@@ -51,29 +136,29 @@ const getStudentPlacementEnquiriesForHospital = async (hospitalId: string): Prom
 const getStudentPlacementEnquiryById = async (id: string, user: JwtPayload): Promise<IStudentPlacementEnquiry | null> => {
      const studentPlacementEnquiry = await StudentPlacementEnquiry.aggregate([
           {
-               $match: { _id: new mongoose.Types.ObjectId(id) }
+               $match: { _id: new mongoose.Types.ObjectId(id) },
           },
           {
                $lookup: {
                     from: 'users',
                     localField: 'studentId',
                     foreignField: '_id',
-                    as: 'studentUser'
-               }
+                    as: 'studentUser',
+               },
           },
           {
-               $unwind: { path: '$studentUser', preserveNullAndEmptyArrays: true }
+               $unwind: { path: '$studentUser', preserveNullAndEmptyArrays: true },
           },
           {
                $lookup: {
                     from: 'students',
                     localField: 'studentId',
                     foreignField: 'userId',
-                    as: 'studentData'
-               }
+                    as: 'studentData',
+               },
           },
           {
-               $unwind: { path: '$studentData', preserveNullAndEmptyArrays: true }
+               $unwind: { path: '$studentData', preserveNullAndEmptyArrays: true },
           },
           {
                $lookup: {
@@ -87,14 +172,14 @@ const getStudentPlacementEnquiryById = async (id: string, user: JwtPayload): Pro
                                    from: 'hospitals',
                                    localField: 'hospitalId',
                                    foreignField: '_id',
-                                   as: 'hospitalData'
-                              }
+                                   as: 'hospitalData',
+                              },
                          },
                          {
-                              $unwind: { path: '$hospitalData', preserveNullAndEmptyArrays: true }
-                         }
-                    ]
-               }
+                              $unwind: { path: '$hospitalData', preserveNullAndEmptyArrays: true },
+                         },
+                    ],
+               },
           },
           {
                $lookup: {
@@ -108,21 +193,21 @@ const getStudentPlacementEnquiryById = async (id: string, user: JwtPayload): Pro
                                    from: 'hospitals',
                                    localField: 'hospitalId',
                                    foreignField: '_id',
-                                   as: 'hospitalData'
-                              }
+                                   as: 'hospitalData',
+                              },
                          },
                          {
-                              $unwind: { path: '$hospitalData', preserveNullAndEmptyArrays: true }
-                         }
-                    ]
-               }
+                              $unwind: { path: '$hospitalData', preserveNullAndEmptyArrays: true },
+                         },
+                    ],
+               },
           },
           {
-               $unwind: { path: '$chosenPlacementData', preserveNullAndEmptyArrays: true }
-          }
+               $unwind: { path: '$chosenPlacementData', preserveNullAndEmptyArrays: true },
+          },
      ]);
 
-     return studentPlacementEnquiry.length > 0 ? studentPlacementEnquiry[0] as IStudentPlacementEnquiry : null;
+     return studentPlacementEnquiry.length > 0 ? (studentPlacementEnquiry[0] as IStudentPlacementEnquiry) : null;
 };
 
 const updateStudentPlacementEnquiry = async (id: string, payload: Partial<IStudentPlacementEnquiry>): Promise<IStudentPlacementEnquiry | null> => {

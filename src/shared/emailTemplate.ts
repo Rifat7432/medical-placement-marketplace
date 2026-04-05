@@ -1,4 +1,4 @@
-import { IContact, ICreateAccount, IEnquiryEmail, IHelpContact, IPlacementsEnquiryEmail, IResetPassword, IResetPasswordByEmail } from '../types/emailTamplate';
+import { IContact, ICreateAccount, IEnquiryEmail, IHelpContact, IHospitalCredentials, IPlacementsEnquiryEmail, IResetPassword, IResetPasswordByEmail } from '../types/emailTamplate';
 
 const createAccount = (values: ICreateAccount) => {
      const data = {
@@ -215,6 +215,51 @@ const sendPlacementsEnquiryToAdmin = (values: IPlacementsEnquiryEmail) => {
 
      return data;
 };
+
+
+const hospitalCredentialsTemplate = (values: IHospitalCredentials) => {
+     const data = {
+          to: values.email,
+          subject: 'Your Hospital Account Has Been Created',
+          html: `<body style="font-family: Arial, sans-serif; background-color: #f9f9f9; margin: 50px; padding: 20px; color: #555;">
+    <div style="width: 100%; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #fff; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+        
+        <img src="https://i.postimg.cc/6pgNvKhD/logo.png" alt="Logo" style="display: block; margin: 0 auto 20px; width:150px" />
+        
+        <div style="text-align: center;">
+            <p style="font-size: 18px; margin-bottom: 10px;"><strong>Welcome to Our Platform</strong></p>
+            
+            <p style="font-size: 16px; margin-bottom: 20px;">
+                Hello <strong>${values.hospitalName}</strong>,
+            </p>
+
+            <p style="font-size: 16px; margin-bottom: 20px;">
+                Your hospital account has been successfully created by the admin. You can now log in using the credentials below:
+            </p>
+
+            <div style="background-color: #f1f1f1; padding: 15px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 20px; text-align: left;">
+                <p style="margin: 5px 0;"><strong>Email:</strong> ${values.email}</p>
+                <p style="margin: 5px 0;"><strong>Password:</strong> ${values.password}</p>
+            </div>
+
+            <p style="font-size: 16px; margin-bottom: 20px;">
+                For security reasons, we strongly recommend changing your password after your first login.
+            </p>
+
+            <a href="#" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #fff; text-decoration: none; border-radius: 5px; margin-bottom: 20px;">
+                Login Now
+            </a>
+
+            <p style="font-size: 14px; color: #999;">
+                If you did not expect this email, please contact support immediately.
+            </p>
+        </div>
+    </div>
+</body>`,
+     };
+
+     return data;
+};
 export const emailTemplate = {
      createAccount,
      resetPassword,
@@ -223,4 +268,5 @@ export const emailTemplate = {
      contact,
      sendEnquiryToAdmin,
      sendPlacementsEnquiryToAdmin,
+     hospitalCredentialsTemplate
 };

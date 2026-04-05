@@ -14,12 +14,10 @@ const verifyEmail = catchAsync(async (req, res) => {
 const loginUser = catchAsync(async (req, res) => {
      const { ...loginData } = req.body;
      const result = await AuthService.loginUserFromDB(loginData);
-     const cookieOptions: any = { secure: false, httpOnly: true, maxAge: 31536000000 };
 
-     if (config.node_env === 'production') {
-          cookieOptions.sameSite = 'none';
-     }
-     if (config.node_env === 'production') {
+
+
+     if (!result.otp) {
           return sendResponse(res, {
                success: true,
                statusCode: StatusCodes.OK,

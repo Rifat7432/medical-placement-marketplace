@@ -18,10 +18,7 @@ const studentPlacementEnquirySchema = new Schema<IStudentPlacementEnquiry, Stude
     documents: [{ type: String }],
     additionalInformation: { type: String, default: undefined },
 
-
-    placementId: [{ type: Schema.Types.ObjectId, ref: 'Placement' }],
     chosenPlacementId: { type: Schema.Types.ObjectId, ref: 'Placement' },
-
 
     stage:{type: String, enum: ['awaiting for payment', 'matching required', 'awaiting response', 'completed'], default: 'awaiting for payment'},
 
