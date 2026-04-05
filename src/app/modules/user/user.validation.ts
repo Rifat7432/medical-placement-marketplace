@@ -3,7 +3,6 @@ import { USER_ROLES } from '../../../enums/user';
 
 export const createStudentUserZodSchema = z.object({
      body: z.object({
-          fullName: z.string({ required_error: 'Full name is required' }),
           email: z.string({ required_error: 'Email is required' }).email('Invalid email address'),
           password: z.string({ required_error: 'Password is required' }).min(8, 'Password must be at least 8 characters long'),
           phoneNumber: string().optional(),
