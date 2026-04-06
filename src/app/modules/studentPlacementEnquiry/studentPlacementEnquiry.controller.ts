@@ -49,7 +49,7 @@ const getStudentPlacementEnquiriesForAdmin = catchAsync(async (req, res) => {
 const getStudentPlacementEnquiry = catchAsync(async (req, res) => {
   const { id } = req.params;
   const user = req.user;
-  const result = await StudentPlacementEnquiryService.getStudentPlacementEnquiryById(id, user);
+  const result = await StudentPlacementEnquiryService.getStudentPlacementEnquiryByIdForStudent(id, user);
   if (!result) {
     throw new AppError(StatusCodes.NOT_FOUND, 'Student placement enquiry not found');
   }

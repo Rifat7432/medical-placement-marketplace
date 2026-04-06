@@ -12,11 +12,6 @@ const studentSchema = new Schema<IStudent, StudentModel>(
     preferredCities: { type: String },
     languages: { type: String },
     profileImage: { type: String },
-    documents: [{
-      name: { type: String },
-      url: { type: String },
-      type: { type: String }
-    }],
   },
   { timestamps: true },
 );

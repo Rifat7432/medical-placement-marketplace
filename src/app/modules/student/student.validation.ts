@@ -32,11 +32,6 @@ const updateStudentZodSchema = z.object({
     preferredCities: z.string().optional(),
     languages: z.string().optional(),
     profileImage: z.string().optional(),
-    documents: z.array(z.object({
-      name: z.string(),
-      url: z.string(),
-      type: z.string()
-    })).optional(),
   }),
 });
 

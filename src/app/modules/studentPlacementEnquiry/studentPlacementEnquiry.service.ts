@@ -133,7 +133,7 @@ const getStudentPlacementEnquiriesForHospital = async (hospitalId: string): Prom
      return studentPlacementEnquiries as IStudentPlacementEnquiry[];
 };
 
-const getStudentPlacementEnquiryById = async (id: string, user: JwtPayload): Promise<IStudentPlacementEnquiry | null> => {
+const getStudentPlacementEnquiryByIdForStudent = async (id: string, user: JwtPayload): Promise<IStudentPlacementEnquiry | null> => {
      const studentPlacementEnquiry = await StudentPlacementEnquiry.aggregate([
           {
                $match: { _id: new mongoose.Types.ObjectId(id) },
@@ -204,7 +204,7 @@ export const StudentPlacementEnquiryService = {
      getStudentPlacementEnquiries,
      getStudentPlacementEnquiriesForAdmin,
      getStudentPlacementEnquiriesForHospital,
-     getStudentPlacementEnquiryById,
+     getStudentPlacementEnquiryByIdForStudent,
      updateStudentPlacementEnquiry,
      deleteStudentPlacementEnquiry,
 };

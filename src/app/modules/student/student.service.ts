@@ -27,7 +27,7 @@ const getStudentProfileFromDB = async (id: string): Promise<IStudent | null> => 
 };
 
 const updateStudent = async (id: string, payload: Partial<IStudent>): Promise<IStudent | null> => {
-  const student = await Student.findByIdAndUpdate(id, payload, { new: true });
+  const student = await Student.findOneAndUpdate({userId:id}, payload, { new: true });
   return student;
 };
 
