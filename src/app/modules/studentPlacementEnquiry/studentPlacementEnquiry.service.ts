@@ -55,7 +55,6 @@ const getStudentPlacementEnquiriesForAdmin = async (): Promise<IStudentPlacement
                          {
                               $project: {
                                    _id: 1,
-                                   name: 1,
                                    email: 1,
                                    role: 1,
                                    // include only the fields you need
@@ -134,6 +133,7 @@ const getStudentPlacementEnquiriesForHospital = async (hospitalId: string): Prom
 };
 
 const getStudentPlacementEnquiryByIdForStudent = async (id: string, user: JwtPayload): Promise<IStudentPlacementEnquiry | null> => {
+     console.log(user,id)
      const studentPlacementEnquiry = await StudentPlacementEnquiry.aggregate([
           {
                $match: { _id: new mongoose.Types.ObjectId(id) },
@@ -142,7 +142,17 @@ const getStudentPlacementEnquiryByIdForStudent = async (id: string, user: JwtPay
                $lookup: {
                     from: 'users',
                     localField: 'studentId',
-                    foreignField: '_id',
+                    foreignField: '_id',  
+                     pipeline: [
+                         {
+                              $project: {
+                                   _id: 1,
+                                   email: 1,
+                                   role: 1,
+                                   // include only the fields you need
+                              },
+                         },
+                    ],
                     as: 'studentUser',
                },
           },
