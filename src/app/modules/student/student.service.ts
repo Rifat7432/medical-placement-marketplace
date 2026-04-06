@@ -22,12 +22,12 @@ const getStudentById = async (id: string): Promise<IStudent | null> => {
 };
 
 const getStudentProfileFromDB = async (id: string): Promise<IStudent | null> => {
-  const student = await Student.findById(id).populate('userId', 'email');
+  const student = await Student.findOne({ userId: id }).populate('userId', 'email');
   return student;
 };
 
 const updateStudent = async (id: string, payload: Partial<IStudent>): Promise<IStudent | null> => {
-  const student = await Student.findOneAndUpdate({userId:id}, payload, { new: true });
+  const student = await Student.findOneAndUpdate({ userId: id }, payload, { new: true });
   return student;
 };
 
