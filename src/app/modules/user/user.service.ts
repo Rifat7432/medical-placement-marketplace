@@ -48,10 +48,9 @@ const createStudentToDB = async (payload: Partial<IUser & IStudent>) => {
           email: createUser.email!,
      };
      await User.findOneAndUpdate({ _id: createUser._id }, { $set: { oneTimeCode: otp, OTPExpireAt: new Date(Date.now() + 5 * 60000) } });
-     if (config.node_env === 'production') {
-          const createAccountTemplate = emailTemplate.createAccount(values);
-          await emailHelper.sendEmail(createAccountTemplate);
-     }
+
+     const createAccountTemplate = emailTemplate.createAccount(values);
+     await emailHelper.sendEmail(createAccountTemplate);
 
      return values;
 };
@@ -142,14 +141,14 @@ const handleGoogleAuthentication = async (payload: { email: string; googleId: st
                email: newUser.email,
           };
           await User.findOneAndUpdate({ _id: newUser._id }, { $set: { oneTimeCode: otp, OTPExpireAt: new Date(Date.now() + 5 * 60000) } });
-          if (config.node_env === 'production') {
-               const createAccountTemplate = emailTemplate.createAccount(values);
-               await emailHelper.sendEmail(createAccountTemplate);
+          // if (config.node_env === 'production') {
+          const createAccountTemplate = emailTemplate.createAccount(values);
+          await emailHelper.sendEmail(createAccountTemplate);
 
-               // Save OTP for later verification
+          // Save OTP for later verification
 
-               return { message: 'Account created successfully, please verify via OTP' };
-          }
+          //      return { message: 'Account created successfully, please verify via OTP' };
+          // }
           return { message: 'Account created successfully, please verify via OTP', values };
      }
      // If user exists, perform login
@@ -164,7 +163,7 @@ const handleGoogleAuthentication = async (payload: { email: string; googleId: st
 
                //save to DB
                await User.findOneAndUpdate({ email }, { $set: { oneTimeCode: otp, OTPExpireAt: new Date(Date.now() + 15 * 60000) } });
-
+               return { message: 'Account created successfully, please verify via OTP', value };
                throw new AppError(StatusCodes.CONFLICT, 'Please verify your account, then try to login again');
           }
 

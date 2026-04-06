@@ -184,6 +184,61 @@ const getStudentPlacementEnquiryByIdForStudent = async (id: string, user: JwtPay
           {
                $unwind: { path: '$chosenPlacementData', preserveNullAndEmptyArrays: true },
           },
+          {
+               $lookup: {
+                    from: 'matchingplacements',
+                    let: { studentId: '$studentId', enquiryId: '$_id' },
+                    pipeline: [
+                         {
+                              $match: {
+                                   $expr: {
+                                        $and: [
+                                             { $eq: ['$studentId', '$$studentId'] },
+                                             { $eq: ['$enquiryId', '$$enquiryId'] },
+                                             { $ne: ['$isDeleted', true] },
+                                        ],
+                                   },
+                              },
+                         },
+                         {
+                              $lookup: {
+                                   from: 'placements',
+                                   localField: 'placementId',
+                                   foreignField: '_id',
+                                   as: 'placementDetails',
+                                   pipeline: [
+                                        {
+                                             $lookup: {
+                                                  from: 'hospitals',
+                                                  localField: 'hospitalId',
+                                                  foreignField: '_id',
+                                                  as: 'hospitalData',
+                                             },
+                                        },
+                                        {
+                                             $unwind: { path: '$hospitalData', preserveNullAndEmptyArrays: true },
+                                        },
+                                   ],
+                              },
+                         },
+                         {
+                              $unwind: { path: '$placementDetails', preserveNullAndEmptyArrays: true },
+                         },
+                    ],
+                    as: 'matchingPlacements',
+               },
+          },
+          {
+               $addFields: {
+                    matchingPlacements: {
+                         $cond: {
+                              if: { $in: ['$stage', ['matching required', 'awaiting response']] },
+                              then: '$matchingPlacements',
+                              else: [],
+                         },
+                    },
+               },
+          },
      ]);
 
      return studentPlacementEnquiry.length > 0 ? (studentPlacementEnquiry[0] as IStudentPlacementEnquiry) : null;
