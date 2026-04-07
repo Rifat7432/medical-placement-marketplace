@@ -13,7 +13,7 @@ router.post('/', validateRequest(ConversationValidation.createConversationZodSch
 
 router.get('/:conversationId/messages', ConversationController.getMessagesFromConversation);
 
-router.patch('/:id', validateRequest(ConversationValidation.updateConversationZodSchema), ConversationController.updateConversation);
-router.delete('/:id', ConversationController.deleteConversation);
+// router.patch('/:id', validateRequest(ConversationValidation.updateConversationZodSchema), ConversationController.updateConversation);
+// router.delete('/:id', ConversationController.deleteConversation);
 
 export const ConversationRouter = router;

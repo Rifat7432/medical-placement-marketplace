@@ -12,6 +12,7 @@ export interface IPlacement extends Document {
   startDate: string;
   requirements: string;
   description: string;
+  isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

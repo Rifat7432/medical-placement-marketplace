@@ -11,8 +11,9 @@ router.get('/', HospitalController.getHospitals);
 
 
 router.get('/profile', auth(USER_ROLES.HOSPITAL), HospitalController.getHospitalProfile);
-router.get('/:id', HospitalController.getHospital);
-router.patch('/:id', validateRequest(HospitalValidation.updateHospitalZodSchema), HospitalController.updateHospital);
-router.delete('/:id', HospitalController.deleteHospital);
+
+// router.get('/:id', HospitalController.getHospital);
+// router.patch('/:id', validateRequest(HospitalValidation.updateHospitalZodSchema), HospitalController.updateHospital);
+// router.delete('/:id', HospitalController.deleteHospital);
 
 export const HospitalRouter = router;

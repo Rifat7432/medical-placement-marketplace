@@ -11,8 +11,7 @@ import { StatusCodes } from 'http-status-codes';
 
 const router = express.Router();
 
-router.get('/', StudentController.getStudents);
-router.post('/', validateRequest(StudentValidation.createStudentZodSchema), StudentController.createStudent);
+// router.get('/', StudentController.getStudents);
 
 router.get(
      '/profile',
@@ -56,6 +55,6 @@ router.patch(
      validateRequest(StudentValidation.updateStudentZodSchema),
      StudentController.updateStudent,
 );
-router.delete('/:id', StudentController.deleteStudent);
+router.get('/dashboard/overview', auth(USER_ROLES.STUDENT), StudentController.getStudentDashboard);
 
 export const StudentRouter = router;

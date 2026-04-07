@@ -4,13 +4,12 @@ import sendResponse from '../../../shared/sendResponse';
 import { StudentService } from './student.service';
 import AppError from '../../../errors/AppError';
 
-const createStudent = catchAsync(async (req, res) => {
-  const studentData = req.body;
-  const result = await StudentService.createStudentToDB(studentData);
+const getStudentDashboard = catchAsync(async (req, res) => {
+  const result = await StudentService.getStudentDashboard(req.user.id);
   sendResponse(res, {
     success: true,
-    statusCode: StatusCodes.CREATED,
-    message: 'Student created successfully',
+    statusCode: StatusCodes.OK,
+    message: 'Students retrieved successfully',
     data: result,
   });
 });
@@ -82,12 +81,11 @@ const deleteStudent = catchAsync(async (req, res) => {
 });
 
 export const StudentController = {
-  createStudent,
+
   getStudents,
   getStudent,
   updateStudent,
   deleteStudent,
 
-
-  getStudentProfile
+getStudentDashboard,  getStudentProfile
 };

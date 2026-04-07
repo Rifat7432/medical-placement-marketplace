@@ -14,6 +14,7 @@ const placementSchema = new Schema<IPlacement, PlacementModel>(
     startDate: { type: String, required: true },
     requirements: { type: String },
     description: { type: String },
+    isDeleted: { type: Boolean, default: false },
   },
   { timestamps: true },
 );

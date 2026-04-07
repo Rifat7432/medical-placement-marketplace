@@ -7,7 +7,7 @@ import { USER_ROLES } from '../../../enums/user';
 
 const router = express.Router();
 
-router.get('/hospital', auth(USER_ROLES.HOSPITAL), PlacementController.getPlacements);
+router.get('/', auth(USER_ROLES.HOSPITAL), PlacementController.getPlacements);
 router.post('/', auth(USER_ROLES.HOSPITAL, USER_ROLES.ADMIN), validateRequest(PlacementValidation.createPlacementZodSchema), PlacementController.createPlacement);
 
 router.get('/:id', PlacementController.getPlacement);

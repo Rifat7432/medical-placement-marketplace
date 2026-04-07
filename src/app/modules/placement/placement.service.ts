@@ -20,22 +20,39 @@ const createPlacementToDB = async (payload: Partial<IPlacement>, hospitalId: str
 };
 
 const getPlacements = async (id: string): Promise<IPlacement[]> => {
-     const placements = await Placement.find({ hospitalId: id });
+     const placements = await Placement.find({ hospitalId: id ,isDeleted: false});
      return placements;
 };
 
 const getPlacementById = async (id: string): Promise<IPlacement | null> => {
      const placement = await Placement.findById(id);
+     if (!placement || placement.isDeleted) {
+          throw new AppError(StatusCodes.NOT_FOUND, 'Placement not found');
+     }
      return placement;
 };
 
 const updatePlacement = async (id: string, payload: Partial<IPlacement>): Promise<IPlacement | null> => {
-     const placement = await Placement.findByIdAndUpdate(id, payload, { new: true });
+     const placement = await Placement.findOneAndUpdate(
+          { _id: id, isDeleted: false },
+          payload,
+          { new: true }
+     );
+     if (!placement || placement.isDeleted) {
+          throw new AppError(StatusCodes.NOT_FOUND, 'Placement not found');
+     }
      return placement;
 };
 
 const deletePlacement = async (id: string): Promise<IPlacement | null> => {
-     const placement = await Placement.findByIdAndDelete(id);
+     const placement = await Placement.findOneAndUpdate(
+          { _id: id, isDeleted: false },
+          { isDeleted: true },
+          { new: true },
+     );
+     if (!placement || placement.isDeleted) {
+          throw new AppError(StatusCodes.NOT_FOUND, 'Placement not found');
+     }
      return placement;
 };
 
