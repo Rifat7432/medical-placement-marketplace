@@ -7,6 +7,7 @@ import { notFound } from './app/middleware/notFound';
 import { welcome } from './utils/welcome';
 import config from './config';
 import path from 'path';
+import { webhook } from 'twilio/lib/webhooks/webhooks';
 const app: Application = express();
 
 app.set('view engine', 'ejs');
@@ -31,6 +32,7 @@ app.use(express.static('public'));
 
 //router
 app.use('/api/v1', router);
+app.use('/stripe/webhook', webhook());
 //live response
 app.get('/', (req: Request, res: Response) => {
      res.send(welcome());
