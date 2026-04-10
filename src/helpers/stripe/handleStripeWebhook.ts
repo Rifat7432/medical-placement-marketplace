@@ -1,0 +1,60 @@
+import { Request, Response } from 'express';
+
+import { Payment } from '../../app/modules/payment/payment.model';
+import stripe from '../../config/stripe';
+import Stripe from 'stripe';
+import config from '../../config';
+import { StudentPlacementEnquiry } from '../../app/modules/studentPlacementEnquiry/studentPlacementEnquiry.model';
+
+export const webhook = async (req: Request, res: Response) => {
+     const sig = req.headers['stripe-signature'] as string;
+
+     let event: Stripe.Event;
+
+     try {
+          event = stripe.webhooks.constructEvent(req.body, sig, config?.stripe?.stripe_webhook_secret as string);
+     } catch (err: any) {
+          console.error('Webhook signature verification failed:', err.message);
+          return res.status(400).send(`Webhook Error: ${err.message}`);
+     }
+
+     const data = event.data.object as Stripe.PaymentIntent;
+
+     // ✅ Payment success
+     if (event.type === 'payment_intent.succeeded') {
+          const paymentInfo = await Payment.findOneAndUpdate(
+               { paymentIntentId: data.id },
+               {
+                    status: 'succeeded',
+                    stripeCustomerId: data.customer as string,
+                    trxId: data.latest_charge as string,
+               },
+          );
+          if (paymentInfo) {
+               const enquiry = await StudentPlacementEnquiry.findById(paymentInfo.enquiryId);
+               if (enquiry?.firstPayment === 'pending') {
+                    await StudentPlacementEnquiry.findByIdAndUpdate(paymentInfo.enquiryId, {
+                         firstPayment: 'paid',
+                         firstPaymentId: paymentInfo._id,
+                    });
+               } else if (enquiry?.finalPayment === 'pending') {
+                    await StudentPlacementEnquiry.findByIdAndUpdate(paymentInfo.enquiryId, {
+                         finalPayment: 'paid',
+                         finalPaymentId: paymentInfo._id,
+                    });
+               }
+          }
+     }
+     // https://server.lumieramed.com/api/v1/stripe/webhook
+     // ❌ Payment failed
+     if (event.type === 'payment_intent.payment_failed') {
+          await Payment.findOneAndUpdate(
+               { paymentIntentId: data.id },
+               {
+                    status: 'failed',
+               },
+          );
+     }
+
+     return res.json({ received: true });
+};

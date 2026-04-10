@@ -10,6 +10,8 @@ import { PlacementsEnquiryRouter } from '../app/modules/placementsEnquiry/placem
 import { MessageRouter } from '../app/modules/message/message.route';
 import { ConversationRouter } from '../app/modules/conversation/conversation.route';
 import { MatchingPlacementRouter } from '../app/modules/matching/matchingPlacement.route';
+import { NotificationRoutes } from '../app/modules/notification/notification.routes';
+import { SubscriptionRoutes } from '../app/modules/payment/payment.routes';
 
 const router = express.Router();
 const routes = [
@@ -56,6 +58,14 @@ const routes = [
      {
           path: '/matching-placements',
           route: MatchingPlacementRouter,
+     },
+     {
+          path: '/notifications',
+          route: NotificationRoutes,
+     },
+     {
+          path: '/payments',
+          route: SubscriptionRoutes,
      },
 ];
 

@@ -27,7 +27,10 @@ export interface IStudentPlacementEnquiry extends Document {
      adminStatus: 'pending' | 'approved' | 'rejected';
 
      firstPayment: 'pending' | 'paid';
+     firstPaymentId?: mongoose.Types.ObjectId;
+
      finalPayment: 'pending' | 'paid';
+     finalPaymentId?: mongoose.Types.ObjectId;
 
      isVisibleToHospitals: boolean;
      isDeleted: boolean;
