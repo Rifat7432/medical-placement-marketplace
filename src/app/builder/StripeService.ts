@@ -33,7 +33,7 @@ class StripeService {
                line_items: [
                     {
                          price_data: {
-                              currency: 'usd',
+                              currency: 'gbp',
                               product_data: {
                                    name: 'Service Payment',
                                    description: 'Payment for vendor service',

@@ -47,7 +47,10 @@ const studentPlacementEnquirySchema = new Schema<IStudentPlacementEnquiry, Stude
                type: Schema.Types.ObjectId,
                ref: 'Payment',
           },
-
+          firstPaymentAmount: {
+               type: Number,
+               default: 250,
+          },
           finalPayment: {
                type: String,
                enum: ['pending', 'paid'],
@@ -56,6 +59,10 @@ const studentPlacementEnquirySchema = new Schema<IStudentPlacementEnquiry, Stude
           finalPaymentId: {
                type: Schema.Types.ObjectId,
                ref: 'Payment',
+          },
+          finalPaymentAmount: {
+               type: Number,
+               default: 0,
           },
           isVisibleToHospitals: {
                type: Boolean,

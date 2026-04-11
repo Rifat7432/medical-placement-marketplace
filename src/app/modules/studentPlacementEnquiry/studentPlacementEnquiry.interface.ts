@@ -28,10 +28,10 @@ export interface IStudentPlacementEnquiry extends Document {
 
      firstPayment: 'pending' | 'paid';
      firstPaymentId?: mongoose.Types.ObjectId;
-
+     firstPaymentAmount: number;
      finalPayment: 'pending' | 'paid';
      finalPaymentId?: mongoose.Types.ObjectId;
-
+     finalPaymentAmount: number;
      isVisibleToHospitals: boolean;
      isDeleted: boolean;
 

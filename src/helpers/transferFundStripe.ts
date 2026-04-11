@@ -57,7 +57,7 @@ const verifyStripeAccount = async (stripeAccountId: string) => {
 const createTransfer = async (stripeAccountId: string, amount: number) => {
      return stripe.transfers.create({
           amount: Math.floor(amount * 100), // Convert to cents
-          currency: 'usd',
+          currency: 'gbp',
           destination: stripeAccountId,
      });
 };
@@ -73,7 +73,7 @@ const createPayout = async (stripeAccountId: string, amount: number) => {
      return stripe.payouts.create(
           {
                amount: Math.floor(amount * 100), // Convert to cents
-               currency: 'usd',
+               currency: 'gbp',
                destination: externalAccount.data[0].id,
                method: 'standard', // Can change to 'instant' for instant payouts
           },

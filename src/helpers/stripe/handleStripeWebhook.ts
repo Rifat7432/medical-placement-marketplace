@@ -48,12 +48,13 @@ export const webhook = async (req: Request, res: Response) => {
      // https://server.lumieramed.com/api/v1/stripe/webhook
      // ❌ Payment failed
      if (event.type === 'payment_intent.payment_failed') {
-          await Payment.findOneAndUpdate(
+         await Payment.findOneAndUpdate(
                { paymentIntentId: data.id },
                {
                     status: 'failed',
                },
           );
+    
      }
 
      return res.json({ received: true });

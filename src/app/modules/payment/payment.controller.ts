@@ -7,7 +7,7 @@ import { StatusCodes } from 'http-status-codes';
 const createCheckoutSession = catchAsync(async (req, res) => {
      const { id }: any = req.user;
      const enquiryId = req.params.id;
-     const result = await SubscriptionService.createPaymentIntent(id, enquiryId, req.body.amount);
+     const result = await SubscriptionService.createPaymentIntent(id, enquiryId);
 
      sendResponse(res, {
           statusCode: StatusCodes.OK,
