@@ -23,8 +23,6 @@ const UserSchema = new Schema(
                index: true,
           },
           fullName: { type: String },
-          firstName: { type: String },
-          lastName: { type: String },
           image: { type: String },
           role: {
                type: String,

@@ -25,6 +25,17 @@ const createPaymentIntent = async (userId: string, enquiryId: string) => {
           amount: amount * 100,
           currency: 'gbp',
 
+          automatic_payment_methods: {
+               enabled: true,
+          },
+
+          // 👇 THIS enables OTP/3DS when needed
+          payment_method_options: {
+               card: {
+                    request_three_d_secure: 'automatic', // or "any"
+               },
+          },
+
           metadata: {
                userId,
                enquiryId,
