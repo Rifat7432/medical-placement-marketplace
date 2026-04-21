@@ -13,6 +13,7 @@ import { Student } from '../student/student.model';
 import { IStudent } from '../student/student.interface';
 import { IHospital } from '../hospital/hospital.interface';
 import { Hospital } from '../hospital/hospital.model';
+import { Conversation } from '../conversation/conversation.model';
 
 // create user
 
@@ -30,14 +31,20 @@ const createStudentToDB = async (payload: Partial<IUser & IStudent>) => {
           password: payload.password,
           role: USER_ROLES.STUDENT,
      });
-
+     if (!createUser) {
+          throw new AppError(StatusCodes.BAD_REQUEST, 'Failed to create user');
+     }
      await Student.create({
           userId: createUser._id,
           fullName: payload?.fullName,
      });
+     const admin = await User.findOne({ role: USER_ROLES.ADMIN });
 
-     if (!createUser) {
-          throw new AppError(StatusCodes.BAD_REQUEST, 'Failed to create user');
+     if (admin) {
+          await Conversation.create({
+               participants: [createUser._id, admin._id],
+               createdBy: admin._id,
+          });
      }
 
      //send email
@@ -72,7 +79,9 @@ const createHospitalToDB = async (payload: Partial<IUser & IHospital>) => {
           role: USER_ROLES.HOSPITAL,
           verified: true,
      });
-
+     if (!createUser) {
+          throw new AppError(StatusCodes.BAD_REQUEST, 'Failed to create user');
+     }
      await Hospital.create({
           userId: createUser._id,
           phone: payload.phone,
@@ -81,9 +90,13 @@ const createHospitalToDB = async (payload: Partial<IUser & IHospital>) => {
           website: payload.website,
           description: payload.description,
      });
+     const admin = await User.findOne({ role: USER_ROLES.ADMIN });
 
-     if (!createUser) {
-          throw new AppError(StatusCodes.BAD_REQUEST, 'Failed to create user');
+     if (admin) {
+          await Conversation.create({
+               participants: [createUser._id, admin._id],
+               createdBy: admin._id,
+          });
      }
 
      //send email
