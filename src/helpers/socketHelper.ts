@@ -55,13 +55,12 @@ const socket = (io: Server) => {
           // =========================
           socket.on('sendMessage', async (data) => {
                try {
-                    const { conversationId, content, attachments } = data;
-
+                    const { conversationId, content, attachments } = JSON.parse(data);
                     const conversation = await Conversation.findById(conversationId);
-
                     const isParticipant = conversation?.participants.some((id: any) => id.toString() === socket.user._id.toString());
 
                     if (!conversation || !isParticipant) {
+                        
                          socket.emit('auth_error', { message: 'Access denied' });
                          return;
                     }
@@ -91,6 +90,7 @@ const socket = (io: Server) => {
           // MARK AS READ
           // =========================
           socket.on('markAsRead', async (data) => {
+               data = JSON.parse(data);
                try {
                     await Message.updateMany(
                          {
