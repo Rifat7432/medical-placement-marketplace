@@ -3,7 +3,7 @@ import { IPlacement, PlacementModel } from './placement.interface';
 
 const placementSchema = new Schema<IPlacement, PlacementModel>(
   {
-    hospitalId: { type: Schema.Types.ObjectId, ref: 'Hospital', required: true, index: true },
+    hospitalId: { type: Schema.Types.ObjectId, ref: 'Hospital', index: true },
     department: { type: String, required: true },
     status: { type: String, enum: ['available', 'filled', 'closed'], default: 'available' },
     location: { type: String, required: true },
