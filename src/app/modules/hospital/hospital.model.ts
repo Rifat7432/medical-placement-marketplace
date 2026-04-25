@@ -12,6 +12,7 @@ const hospitalSchema = new Schema<IHospital, HospitalModel>(
     logo: { type: String },
     totalSeats: { type: Number, default: 0 },
     availableSeats: { type: Number, default: 0 },
+    isDeleted: { type: Boolean, default: false },
   },
   { timestamps: true },
 );

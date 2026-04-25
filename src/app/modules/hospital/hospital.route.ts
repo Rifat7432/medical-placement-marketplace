@@ -7,8 +7,7 @@ import { USER_ROLES } from '../../../enums/user';
 
 const router = express.Router();
 
-router.get('/', HospitalController.getHospitals);
-
+router.get('/', auth(USER_ROLES.ADMIN), HospitalController.getHospitals);
 
 router.get('/profile', auth(USER_ROLES.HOSPITAL), HospitalController.getHospitalProfile);
 

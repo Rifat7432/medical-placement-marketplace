@@ -12,6 +12,7 @@ export interface IHospital extends Document {
   availableSeats: number;
   createdAt: Date;
   updatedAt: Date;
+  isDeleted: boolean;
 }
 
 export type HospitalModel = {

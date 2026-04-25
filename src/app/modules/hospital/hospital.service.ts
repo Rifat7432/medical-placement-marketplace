@@ -6,7 +6,7 @@ import AppError from '../../../errors/AppError';
 
 
 const getHospitals = async (): Promise<IHospital[]> => {
-  const hospitals = await Hospital.find();
+  const hospitals = await Hospital.find({ isDeleted: false }).populate('userId', 'email');
   return hospitals;
 };
 const getHospitalProfile = async (id: string): Promise<IHospital | null> => {
@@ -15,7 +15,7 @@ const getHospitalProfile = async (id: string): Promise<IHospital | null> => {
 };
 
 const getHospitalById = async (id: string): Promise<IHospital | null> => {
-  const hospital = await Hospital.findById(id);
+  const hospital = await Hospital.findById(id).populate('userId', 'email');
   return hospital;
 };
 
