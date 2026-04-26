@@ -17,7 +17,7 @@ const createPlacement = catchAsync(async (req, res) => {
 });
 
 const getPlacements = catchAsync(async (req, res) => {
-      const user: any = req.user;
+     const user: any = req.user;
      const result = await PlacementService.getPlacements(user.id);
      sendResponse(res, {
           success: true,
@@ -37,6 +37,16 @@ const getPlacement = catchAsync(async (req, res) => {
           success: true,
           statusCode: StatusCodes.OK,
           message: 'Placement retrieved successfully',
+          data: result,
+     });
+});
+const getPlacementsOfHospital = catchAsync(async (req, res) => {
+     const { id } = req.params;
+     const result = await PlacementService.getPlacementsOfHospital(id);
+     sendResponse(res, {
+          success: true,
+          statusCode: StatusCodes.OK,
+          message: 'Placements retrieved successfully',
           data: result,
      });
 });
@@ -76,4 +86,5 @@ export const PlacementController = {
      getPlacement,
      updatePlacement,
      deletePlacement,
+     getPlacementsOfHospital,
 };

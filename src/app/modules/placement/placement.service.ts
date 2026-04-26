@@ -57,7 +57,35 @@ const getPlacements = async (id: string): Promise<IPlacement[]> => {
      const placements = await Placement.find({ hospitalId: id, isDeleted: false });
      return placements;
 };
+const getPlacementsOfHospital = async (id: string): Promise<IPlacement[]> => {
+     const startOfToday = new Date();
+     startOfToday.setHours(0, 0, 0, 0);
 
+     const placements = await Placement.aggregate([
+          { $match: { isDeleted: false, status: 'available', hospitalId: id } },
+          {
+               $addFields: {
+                    deadlineDate: {
+                         $dateFromString: {
+                              dateString: '$deadline',
+                              onError: null,
+                              onNull: null,
+                         },
+                    },
+               },
+          },
+          {
+               $match: {
+                    $expr: {
+                         $and: [{ $gt: ['$totalSeats', '$filledSeats'] }, { $ne: ['$deadlineDate', null] }, { $lt: ['$deadlineDate', startOfToday] }],
+                    },
+               },
+          },
+          { $project: { deadlineDate: 0 } },
+     ]);
+
+     return placements;
+};
 const getPlacementById = async (id: string): Promise<IPlacement | null> => {
      const placement = await Placement.findById(id);
      if (!placement || placement.isDeleted) {
@@ -90,4 +118,5 @@ export const PlacementService = {
      getPlacementById,
      updatePlacement,
      deletePlacement,
+     getPlacementsOfHospital,
 };
