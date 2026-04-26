@@ -20,7 +20,7 @@ const studentPlacementEnquirySchema = new Schema<IStudentPlacementEnquiry, Stude
 
           chosenPlacementId: { type: Schema.Types.ObjectId, ref: 'Placement' },
 
-          stage: { type: String, enum: ['awaiting for payment', 'matching required', 'awaiting response', 'completed'], default: 'awaiting for payment' },
+          stage: { type: String, enum: ['awaiting for payment', 'matching required', 'awaiting response', 'completed', 'rejected'], default: 'awaiting for payment' },
 
           hospitalStatus: {
                type: String,

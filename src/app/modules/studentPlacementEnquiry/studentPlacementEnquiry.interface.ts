@@ -17,7 +17,7 @@ export interface IStudentPlacementEnquiry extends Document {
      documents: string[];
      additionalInformation?: string;
 
-     stage: 'awaiting for payment' | 'matching required' | 'awaiting response' | 'completed';
+     stage: 'awaiting for payment' | 'matching required' | 'awaiting response' | 'completed'| 'rejected';
 
      placementId?: [mongoose.Types.ObjectId];
      chosenPlacementId?: mongoose.Types.ObjectId;

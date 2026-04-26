@@ -75,10 +75,12 @@ const updatePlacement = async (id: string, payload: Partial<IPlacement>): Promis
 };
 
 const deletePlacement = async (id: string): Promise<IPlacement | null> => {
-     const placement = await Placement.findOneAndUpdate({ _id: id, isDeleted: false }, { isDeleted: true }, { new: true });
-     if (!placement || placement.isDeleted) {
+     const isPlacement = await Placement.findOne({ _id: id, isDeleted: false });
+
+     if (!isPlacement || isPlacement.isDeleted) {
           throw new AppError(StatusCodes.NOT_FOUND, 'Placement not found');
      }
+     const placement = await Placement.findOneAndUpdate({ _id: id, isDeleted: false }, { isDeleted: true }, { new: true });
      return placement;
 };
 

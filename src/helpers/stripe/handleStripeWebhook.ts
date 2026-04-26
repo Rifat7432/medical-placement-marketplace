@@ -36,11 +36,14 @@ export const webhook = async (req: Request, res: Response) => {
                     await StudentPlacementEnquiry.findByIdAndUpdate(paymentInfo.enquiryId, {
                          firstPayment: 'paid',
                          firstPaymentId: paymentInfo._id,
+                         stage: 'matching required',
+                         studentStatus: 'matching',
                     });
                } else if (enquiry?.finalPayment === 'pending') {
                     await StudentPlacementEnquiry.findByIdAndUpdate(paymentInfo.enquiryId, {
                          finalPayment: 'paid',
                          finalPaymentId: paymentInfo._id,
+                         stage:"completed",
                     });
                }
           }

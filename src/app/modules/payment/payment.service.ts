@@ -13,9 +13,9 @@ const createPaymentIntent = async (userId: string, enquiryId: string) => {
      }
 
      let amount = null;
-     if (enquiry.firstPayment === 'pending') {
+     if (enquiry.firstPayment === 'pending' && enquiry.finalPayment === 'pending') {
           amount = enquiry.firstPaymentAmount;
-     } else if (enquiry.finalPayment === 'pending') {
+     } else if (enquiry.finalPayment === 'pending' && enquiry.firstPayment === 'paid') {
           amount = enquiry.finalPaymentAmount;
      }
      if (!amount) {

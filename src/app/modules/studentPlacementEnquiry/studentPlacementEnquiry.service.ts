@@ -133,7 +133,7 @@ const getStudentPlacementEnquiriesForHospital = async (hospitalId: string): Prom
 };
 
 const getStudentPlacementEnquiryByIdForStudent = async (id: string, user: JwtPayload): Promise<IStudentPlacementEnquiry | null> => {
-     console.log(user,id)
+     console.log(user, id);
      const studentPlacementEnquiry = await StudentPlacementEnquiry.aggregate([
           {
                $match: { _id: new mongoose.Types.ObjectId(id) },
@@ -142,8 +142,8 @@ const getStudentPlacementEnquiryByIdForStudent = async (id: string, user: JwtPay
                $lookup: {
                     from: 'users',
                     localField: 'studentId',
-                    foreignField: '_id',  
-                     pipeline: [
+                    foreignField: '_id',
+                    pipeline: [
                          {
                               $project: {
                                    _id: 1,
@@ -202,11 +202,7 @@ const getStudentPlacementEnquiryByIdForStudent = async (id: string, user: JwtPay
                          {
                               $match: {
                                    $expr: {
-                                        $and: [
-                                             { $eq: ['$studentId', '$$studentId'] },
-                                             { $eq: ['$enquiryId', '$$enquiryId'] },
-                                             { $ne: ['$isDeleted', true] },
-                                        ],
+                                        $and: [{ $eq: ['$studentId', '$$studentId'] }, { $eq: ['$enquiryId', '$$enquiryId'] }, { $ne: ['$isDeleted', true] }],
                                    },
                               },
                          },
@@ -253,6 +249,8 @@ const getStudentPlacementEnquiryByIdForStudent = async (id: string, user: JwtPay
 
      return studentPlacementEnquiry.length > 0 ? (studentPlacementEnquiry[0] as IStudentPlacementEnquiry) : null;
 };
+
+
 
 const updateStudentPlacementEnquiry = async (id: string, payload: Partial<IStudentPlacementEnquiry>): Promise<IStudentPlacementEnquiry | null> => {
      const studentPlacementEnquiry = await StudentPlacementEnquiry.findByIdAndUpdate(id, payload, { new: true });
