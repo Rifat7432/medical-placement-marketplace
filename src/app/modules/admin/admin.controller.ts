@@ -13,5 +13,9 @@ const changeStudentPlacementEnquiryStatus = catchAsync(async (req, res) => {
 
      sendResponse(res, { success: true, statusCode: StatusCodes.OK, message: 'Your password has been successfully changed', data: result });
 });
+const adminOverview = catchAsync(async (req, res) => {
+     const result = await AdminService.adminOverview(req.query.year as unknown as number);
 
-export const AdminController = { changeStudentPlacementEnquiryStatus};
+     sendResponse(res, { success: true, statusCode: StatusCodes.OK, message: 'Admin overview retrieved successfully', data: result });
+});
+export const AdminController = { changeStudentPlacementEnquiryStatus, adminOverview};
