@@ -22,8 +22,13 @@ const changeStudentPlacementEnquiryStatus = async (id: string, payload: Partial<
      }
 };
 const adminOverview = async (year: number) => {
-     const totalApplications = await StudentPlacementEnquiry.countDocuments({ isDeleted: false });
+     const currentYear = new Date().getFullYear();
+     let targetYear = year || currentYear;
+     if (targetYear < 2000 || targetYear > currentYear) {
+          targetYear = currentYear;
+     }
 
+     const totalApplications = await StudentPlacementEnquiry.countDocuments({ isDeleted: false });
      const hospitals = await Hospital.countDocuments({ isDeleted: false });
 
      const allPlacements = await Placement.find({ isDeleted: false });
@@ -32,8 +37,23 @@ const adminOverview = async (year: number) => {
      const allPayments = await Payment.find({ status: 'succeeded' });
      const totalRevenue = allPayments.reduce((acc, payment) => acc + payment.amount, 0);
 
-     const start = new Date(`${year}-01-01`);
-     const end = new Date(`${year}-12-31T23:59:59.999Z`);
+     const start = new Date(`${targetYear}-01-01`);
+     const end = new Date(`${targetYear}-12-31T23:59:59.999Z`);
+
+     const months = [
+          { month: 'Jan', totalRevenue: 0 },
+          { month: 'Feb', totalRevenue: 0 },
+          { month: 'Mar', totalRevenue: 0 },
+          { month: 'Apr', totalRevenue: 0 },
+          { month: 'May', totalRevenue: 0 },
+          { month: 'Jun', totalRevenue: 0 },
+          { month: 'Jul', totalRevenue: 0 },
+          { month: 'Aug', totalRevenue: 0 },
+          { month: 'Sep', totalRevenue: 0 },
+          { month: 'Oct', totalRevenue: 0 },
+          { month: 'Nov', totalRevenue: 0 },
+          { month: 'Dec', totalRevenue: 0 },
+     ];
 
      const revenue = await Payment.aggregate([
           {
@@ -48,10 +68,11 @@ const adminOverview = async (year: number) => {
                     totalRevenue: { $sum: '$amount' },
                },
           },
-          { $sort: { _id: 1 } }, // ✅ sort BEFORE project
+          { $sort: { _id: 1 } },
           {
                $project: {
                     _id: 0,
+                    monthIndex: '$_id',
                     month: {
                          $arrayElemAt: [['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], '$_id'],
                     },
@@ -60,25 +81,27 @@ const adminOverview = async (year: number) => {
           },
      ]);
 
+     const revenueBarChart = months.map((m, idx) => {
+          const found = revenue.find((r) => r.monthIndex === idx + 1);
+          return {
+               month: m.month,
+               totalRevenue: found ? found.totalRevenue : 0,
+          };
+     });
+
      const data = await Payment.aggregate([
           {
                $match: {
                     status: 'succeeded',
                },
           },
-
-          // 📊 group by year
           {
                $group: {
                     _id: { $year: '$createdAt' },
                     totalRevenue: { $sum: '$amount' },
                },
           },
-
-          // 🔢 sort by year
           { $sort: { _id: 1 } },
-
-          // 🧠 get previous year's revenue
           {
                $setWindowFields: {
                     sortBy: { _id: 1 },
@@ -92,8 +115,6 @@ const adminOverview = async (year: number) => {
                     },
                },
           },
-
-          // 📈 calculate % change (increase OR decrease)
           {
                $addFields: {
                     percentageChange: {
@@ -112,8 +133,6 @@ const adminOverview = async (year: number) => {
                     },
                },
           },
-
-          // 🏷️ final shape
           {
                $project: {
                     _id: 0,
@@ -124,18 +143,86 @@ const adminOverview = async (year: number) => {
           },
      ]);
 
-     const rejectedEnquiries = await StudentPlacementEnquiry.countDocuments({ isDeleted: false, adminStatus: 'rejected' });
-     const allEnquiries = await StudentPlacementEnquiry.find({ isDeleted: false }).populate('student', 'name email').populate('placement', 'title');
+     const revenueLineChart = data;
+
+     const allEnquiries = await StudentPlacementEnquiry.aggregate([
+          { $match: { isDeleted: false } },
+          {
+               $lookup: {
+                    from: 'students',
+                    localField: 'studentId',
+                    foreignField: 'userId',
+                    pipeline: [
+                         {
+                              $project: {
+                                   _id: 1,
+                                   fullName: 1,
+                                   phoneNumber: 1,
+                                   university: 1,
+                                   yearOfStudy: 1,
+                                   preferredSpecialty: 1,
+                                   preferredCities: 1,
+                                   languages: 1,
+                                   profileImage: 1,
+                              },
+                         },
+                    ],
+                    as: 'studentProfile',
+               },
+          },
+          {
+               $unwind: {
+                    path: '$studentProfile',
+                    preserveNullAndEmptyArrays: true,
+               },
+          },
+          {
+               $lookup: {
+                    from: 'users',
+                    localField: 'studentId',
+                    foreignField: '_id',
+                    pipeline: [
+                         {
+                              $project: {
+                                   _id: 1,
+                                   email: 1,
+                                   role: 1,
+                              },
+                         },
+                    ],
+                    as: 'studentUser',
+               },
+          },
+          {
+               $unwind: {
+                    path: '$studentUser',
+                    preserveNullAndEmptyArrays: true,
+               },
+          },
+          {
+               $addFields: {
+                    student: {
+                         $mergeObjects: ['$studentProfile', { email: '$studentUser.email', role: '$studentUser.role' }],
+                    },
+               },
+          },
+          {
+               $project: {
+                    studentProfile: 0,
+                    studentUser: 0,
+               },
+          },
+     ]);
 
      return {
           totalApplications,
           hospitals,
           totalEmptySeats,
           totalRevenue,
-
           allApplications: allEnquiries,
-          revenueBarChart: revenue,
-          revenueLineChart: data,
+          revenueBarChart,
+          revenueLineChart,
+          growthRate: revenueLineChart.length > 1 ? revenueLineChart[revenueLineChart.length - 1].percentageChange : 0,
      };
 };
 
