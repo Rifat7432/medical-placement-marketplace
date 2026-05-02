@@ -21,6 +21,15 @@ const changeStudentPlacementEnquiryStatus = async (id: string, payload: Partial<
           return updatedEnquiry;
      }
 };
+const changeStudentPlacementEnquiryStage = async (id: string) => {
+     const studentPlacementEnquiry = await StudentPlacementEnquiry.findById(id);
+     if (!studentPlacementEnquiry || studentPlacementEnquiry.isDeleted) {
+          throw new AppError(StatusCodes.NOT_FOUND, 'Student placement enquiry not found');
+     }
+
+     const updatedEnquiry = await StudentPlacementEnquiry.findByIdAndUpdate(id, { stage: 'matching required', studentStatus: 'matching' }, { new: true });
+     return updatedEnquiry;
+};
 const adminOverview = async (year: number) => {
      const currentYear = new Date().getFullYear();
      let targetYear = year || currentYear;
@@ -229,4 +238,5 @@ const adminOverview = async (year: number) => {
 export const AdminService = {
      changeStudentPlacementEnquiryStatus,
      adminOverview,
+     changeStudentPlacementEnquiryStage,
 };

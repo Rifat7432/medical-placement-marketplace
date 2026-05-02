@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-const createVerifyEmailZodSchema = z.object({
+const verifyStatusZodSchema = z.object({
      body: z.object({
           status: z.enum(['pending', 'approved', 'rejected'], { required_error: 'Status is required' }),
          
@@ -8,5 +8,5 @@ const createVerifyEmailZodSchema = z.object({
 });
 
 export const adminValidation = {
-     createVerifyEmailZodSchema,
+     verifyStatusZodSchema,
 };
