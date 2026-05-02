@@ -12,6 +12,7 @@ import { ConversationRouter } from '../app/modules/conversation/conversation.rou
 import { MatchingPlacementRouter } from '../app/modules/matching/matchingPlacement.route';
 import { NotificationRoutes } from '../app/modules/notification/notification.routes';
 import { SubscriptionRoutes } from '../app/modules/payment/payment.routes';
+import { AdminRouter } from '../app/modules/admin/admin.route';
 
 const router = express.Router();
 const routes = [
@@ -66,6 +67,10 @@ const routes = [
      {
           path: '/payments',
           route: SubscriptionRoutes,
+     },
+     {
+          path: '/admin',
+          route: AdminRouter,
      },
 ];
 
