@@ -10,17 +10,23 @@ const changeStudentPlacementEnquiryStatus = catchAsync(async (req, res) => {
 
      const result = await AdminService.changeStudentPlacementEnquiryStatus(req.params.id,  req.body);
 
-     sendResponse(res, { success: true, statusCode: StatusCodes.OK, message: 'Your password has been successfully changed', data: result });
+     sendResponse(res, { success: true, statusCode: StatusCodes.OK, message: 'Placement enquiry status has been successfully changed', data: result });
+});
+const matchPlacement = catchAsync(async (req, res) => {
+
+     const result = await AdminService.matchPlacement(req.params.id,  req.body);
+
+     sendResponse(res, { success: true, statusCode: StatusCodes.OK, message: 'Placement matched successfully', data: result });
 });
 const changeStudentPlacementEnquiryStage = catchAsync(async (req, res) => {
 
      const result = await AdminService.changeStudentPlacementEnquiryStage(req.params.id);
 
-     sendResponse(res, { success: true, statusCode: StatusCodes.OK, message: 'Your password has been successfully changed', data: result });
+     sendResponse(res, { success: true, statusCode: StatusCodes.OK, message: 'Placement enquiry stage has been successfully changed', data: result });
 });
 const adminOverview = catchAsync(async (req, res) => {
      const result = await AdminService.adminOverview(req.query.year as unknown as number);
 
      sendResponse(res, { success: true, statusCode: StatusCodes.OK, message: 'Admin overview retrieved successfully', data: result });
 });
-export const AdminController = { changeStudentPlacementEnquiryStatus, adminOverview,changeStudentPlacementEnquiryStage};
+export const AdminController = { changeStudentPlacementEnquiryStatus, adminOverview,changeStudentPlacementEnquiryStage,matchPlacement};

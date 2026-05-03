@@ -7,6 +7,14 @@ const verifyStatusZodSchema = z.object({
      }),
 });
 
+const matchPlacementZodSchema = z.object({
+     body: z.object({
+     
+          placementIds: z.array(z.string().uuid()),
+     }),
+});
+
 export const adminValidation = {
      verifyStatusZodSchema,
+     matchPlacementZodSchema
 };

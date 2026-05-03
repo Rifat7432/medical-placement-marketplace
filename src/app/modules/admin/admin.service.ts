@@ -5,6 +5,7 @@ import { Notification } from '../notification/notification.model';
 import { Hospital } from '../hospital/hospital.model';
 import { Placement } from '../placement/placement.model';
 import { Payment } from '../payment/payment.model';
+import { MatchingPlacement } from '../matching/matchingPlacement.model';
 
 const changeStudentPlacementEnquiryStatus = async (id: string, payload: Partial<{ status: 'pending' | 'approved' | 'rejected' }>) => {
      const studentPlacementEnquiry = await StudentPlacementEnquiry.findById(id);
@@ -30,6 +31,30 @@ const changeStudentPlacementEnquiryStage = async (id: string) => {
      const updatedEnquiry = await StudentPlacementEnquiry.findByIdAndUpdate(id, { stage: 'matching required', studentStatus: 'matching' }, { new: true });
      return updatedEnquiry;
 };
+const matchPlacement = async (enquiryId: string, placementIds: string[]) => {
+     const studentPlacementEnquiry = await StudentPlacementEnquiry.findById(enquiryId);
+     if (!studentPlacementEnquiry || studentPlacementEnquiry.isDeleted) {
+          throw new AppError(StatusCodes.NOT_FOUND, 'Student placement enquiry not found');
+     }
+     placementIds.forEach(async (placementId) => {
+          const placement = await Placement.findById(placementId);
+          if (!placement || placement.isDeleted) {
+          } else {
+               const newMatchingPlacement = await MatchingPlacement.create({
+                    studentId: studentPlacementEnquiry.studentId,
+                    placementId: placement._id,
+                    enquiryId: studentPlacementEnquiry._id,
+               });
+
+               await Notification.create({
+                    userId: studentPlacementEnquiry.studentId,
+                    title: 'New Placement Match',
+               });
+          }
+     });
+     return null;
+};
+
 const adminOverview = async (year: number) => {
      const currentYear = new Date().getFullYear();
      let targetYear = year || currentYear;
@@ -238,5 +263,5 @@ const adminOverview = async (year: number) => {
 export const AdminService = {
      changeStudentPlacementEnquiryStatus,
      adminOverview,
-     changeStudentPlacementEnquiryStage,
+     changeStudentPlacementEnquiryStage,matchPlacement
 };

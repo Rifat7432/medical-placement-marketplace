@@ -8,6 +8,7 @@ import { adminValidation } from './admin.validation';
 const router = express.Router();
 
 router.patch('/change-student-placement-enquiry-status/:id', auth(USER_ROLES.ADMIN), validateRequest(adminValidation.verifyStatusZodSchema), AdminController.changeStudentPlacementEnquiryStatus);
+router.post('/match-placement/:id', auth(USER_ROLES.ADMIN), validateRequest(adminValidation.matchPlacementZodSchema), AdminController.matchPlacement);
 router.patch('/change-student-placement-enquiry-stage/:id', auth(USER_ROLES.ADMIN), AdminController.changeStudentPlacementEnquiryStage);
 router.get('/admin-overview', auth(USER_ROLES.ADMIN), AdminController.adminOverview);
 
