@@ -7,11 +7,16 @@ import { USER_ROLES } from '../../../enums/user';
 
 const router = express.Router();
 
-router.get('/', auth(USER_ROLES.HOSPITAL, USER_ROLES.ADMIN), PlacementController.getPlacements);
+
 router.post('/', auth(USER_ROLES.HOSPITAL, USER_ROLES.ADMIN), validateRequest(PlacementValidation.createPlacementZodSchema), PlacementController.createPlacement);
 
+router.get('/', auth(USER_ROLES.ADMIN), PlacementController.getPlacements);
+router.get('/available', auth(USER_ROLES.ADMIN), PlacementController.getAllAvailablePlacements);
+
+
+router.get('/:id/hospital', auth(USER_ROLES.ADMIN,USER_ROLES.HOSPITAL), PlacementController.getPlacementsOfHospital);
 router.get('/:id', auth(USER_ROLES.HOSPITAL), PlacementController.getPlacement);
-router.get('/:id/hospital', auth(USER_ROLES.ADMIN), PlacementController.getPlacementsOfHospital);
+
 router.patch('/:id', auth(USER_ROLES.HOSPITAL, USER_ROLES.ADMIN), validateRequest(PlacementValidation.updatePlacementZodSchema), PlacementController.updatePlacement);
 router.delete('/:id', auth(USER_ROLES.HOSPITAL, USER_ROLES.ADMIN), PlacementController.deletePlacement);
 

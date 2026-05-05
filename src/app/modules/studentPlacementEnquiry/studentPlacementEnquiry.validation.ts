@@ -18,6 +18,12 @@ const createStudentPlacementEnquiryZodSchema = z.object({
   }),
 });
 
+const chooseStudentPlacementEnquiryZodSchema = z.object({
+  body: z.object({
+    placementId: z.string({ required_error: 'Placement ID is required' }),
+  }),
+});
+
 const updateStudentPlacementEnquiryZodSchema = z.object({
   body: z.object({
     email: z.string().email().optional(),
@@ -39,4 +45,5 @@ const updateStudentPlacementEnquiryZodSchema = z.object({
 export const StudentPlacementEnquiryValidation = {
   createStudentPlacementEnquiryZodSchema,
   updateStudentPlacementEnquiryZodSchema,
+  chooseStudentPlacementEnquiryZodSchema
 };

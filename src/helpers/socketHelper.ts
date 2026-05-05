@@ -55,7 +55,7 @@ const socket = (io: Server) => {
           // =========================
           socket.on('sendMessage', async (data) => {
                try {
-                    const { conversationId, content, attachments } = JSON.parse(data);
+                    const { conversationId, content, attachments } = data;
                     const conversation = await Conversation.findById(conversationId);
                     const isParticipant = conversation?.participants.some((id: any) => id.toString() === socket.user._id.toString());
 
@@ -90,7 +90,7 @@ const socket = (io: Server) => {
           // MARK AS READ
           // =========================
           socket.on('markAsRead', async (data) => {
-               data = JSON.parse(data);
+               data = data;
                try {
                     await Message.updateMany(
                          {

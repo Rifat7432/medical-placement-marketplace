@@ -4,6 +4,7 @@ import { IStudentPlacementEnquiry } from './studentPlacementEnquiry.interface';
 import { StudentPlacementEnquiry } from './studentPlacementEnquiry.model';
 import AppError from '../../../errors/AppError';
 import { JwtPayload } from 'jsonwebtoken';
+import { Placement } from '../placement/placement.model';
 
 const createStudentPlacementEnquiryToDB = async (studentId: string, payload: Partial<IStudentPlacementEnquiry>): Promise<IStudentPlacementEnquiry> => {
      const studentPlacementEnquiry = await StudentPlacementEnquiry.create({ ...payload, studentId });
@@ -132,8 +133,7 @@ const getStudentPlacementEnquiriesForHospital = async (hospitalId: string): Prom
      return studentPlacementEnquiries as IStudentPlacementEnquiry[];
 };
 
-const getStudentPlacementEnquiryByIdForStudent = async (id: string, user: JwtPayload): Promise<IStudentPlacementEnquiry | null> => {
-     console.log(user, id);
+const getStudentPlacementEnquiryByIdForStudent = async (id: string, user: JwtPayload) => {
      const studentPlacementEnquiry = await StudentPlacementEnquiry.aggregate([
           {
                $match: { _id: new mongoose.Types.ObjectId(id) },
@@ -247,16 +247,41 @@ const getStudentPlacementEnquiryByIdForStudent = async (id: string, user: JwtPay
           },
      ]);
 
-     return studentPlacementEnquiry.length > 0 ? (studentPlacementEnquiry[0] as IStudentPlacementEnquiry) : null;
+     const studentPlacement = studentPlacementEnquiry.length > 0 ? (studentPlacementEnquiry[0] as IStudentPlacementEnquiry) : null;
+
+     if (studentPlacement?.chosenPlacementId) {
+          const chosenPlacement = await Placement.findById(studentPlacement.chosenPlacementId);
+
+          return chosenPlacement;
+     }
+     return studentPlacement;
+};
+const getStudentPlacementEnquiryByIdForAdmin = async (id: string) => {
+     const studentPlacementEnquiry = await StudentPlacementEnquiry.findById(id);
+     if (!studentPlacementEnquiry) {
+          throw new AppError(StatusCodes.NOT_FOUND, 'Student placement enquiry not found');
+     }
+     if (studentPlacementEnquiry.chosenPlacementId) {
+          const chosenPlacement = await Placement.findById(studentPlacementEnquiry.chosenPlacementId);
+
+          return chosenPlacement;
+     }
+     return studentPlacementEnquiry;
 };
 
+const chooseStudentPlacementEnquiry = async (id: string, payload: { placementId: string }): Promise<IStudentPlacementEnquiry | null> => {
+     const isPlacementExist = await Placement.findById(payload.placementId);
+     if (!isPlacementExist) {
+          throw new AppError(StatusCodes.NOT_FOUND, 'Placement not found');
+     }
 
-
+     const studentPlacementEnquiry = await StudentPlacementEnquiry.findByIdAndUpdate(id, { chosenPlacementId: payload.placementId }, { new: true });
+     return studentPlacementEnquiry;
+};
 const updateStudentPlacementEnquiry = async (id: string, payload: Partial<IStudentPlacementEnquiry>): Promise<IStudentPlacementEnquiry | null> => {
      const studentPlacementEnquiry = await StudentPlacementEnquiry.findByIdAndUpdate(id, payload, { new: true });
      return studentPlacementEnquiry;
 };
-
 const deleteStudentPlacementEnquiry = async (id: string): Promise<IStudentPlacementEnquiry | null> => {
      const studentPlacementEnquiry = await StudentPlacementEnquiry.findByIdAndDelete(id);
      return studentPlacementEnquiry;
@@ -270,4 +295,6 @@ export const StudentPlacementEnquiryService = {
      getStudentPlacementEnquiryByIdForStudent,
      updateStudentPlacementEnquiry,
      deleteStudentPlacementEnquiry,
+     getStudentPlacementEnquiryByIdForAdmin,
+     chooseStudentPlacementEnquiry,
 };

@@ -17,7 +17,7 @@ import { createToken } from '../../../utils/createToken';
 //login
 const loginUserFromDB = async (payload: ILoginData) => {
      const { email, password } = payload;
-
+console.log(email,password)
      if (!password) {
           throw new AppError(StatusCodes.BAD_REQUEST, 'Password is required!');
      }

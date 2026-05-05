@@ -18,11 +18,21 @@ const createPlacement = catchAsync(async (req, res) => {
 
 const getPlacements = catchAsync(async (req, res) => {
      const user: any = req.user;
-     const result = await PlacementService.getPlacements(user.id);
+     const result = await PlacementService.getPlacements();
      sendResponse(res, {
           success: true,
           statusCode: StatusCodes.OK,
           message: 'Placements retrieved successfully',
+          data: result,
+     });
+});
+
+const getAllAvailablePlacements = catchAsync(async (req, res) => {
+     const result = await PlacementService.getAllAvailablePlacements();
+     sendResponse(res, {
+          success: true,
+          statusCode: StatusCodes.OK,
+          message: 'Available placements retrieved successfully',
           data: result,
      });
 });
@@ -87,4 +97,5 @@ export const PlacementController = {
      updatePlacement,
      deletePlacement,
      getPlacementsOfHospital,
+     getAllAvailablePlacements,
 };

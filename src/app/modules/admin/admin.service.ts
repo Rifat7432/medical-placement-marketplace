@@ -6,6 +6,10 @@ import { Hospital } from '../hospital/hospital.model';
 import { Placement } from '../placement/placement.model';
 import { Payment } from '../payment/payment.model';
 import { MatchingPlacement } from '../matching/matchingPlacement.model';
+import { IHospital } from '../hospital/hospital.interface';
+import { IPlacement } from '../placement/placement.interface';
+import { User } from '../user/user.model';
+import { USER_ROLES } from '../../../enums/user';
 
 const changeStudentPlacementEnquiryStatus = async (id: string, payload: Partial<{ status: 'pending' | 'approved' | 'rejected' }>) => {
      const studentPlacementEnquiry = await StudentPlacementEnquiry.findById(id);
@@ -31,12 +35,15 @@ const changeStudentPlacementEnquiryStage = async (id: string) => {
      const updatedEnquiry = await StudentPlacementEnquiry.findByIdAndUpdate(id, { stage: 'matching required', studentStatus: 'matching' }, { new: true });
      return updatedEnquiry;
 };
-const matchPlacement = async (enquiryId: string, placementIds: string[]) => {
+const matchPlacement = async (enquiryId: string, payload: { placementIds: string[]; finalPaymentAmount: number }) => {
      const studentPlacementEnquiry = await StudentPlacementEnquiry.findById(enquiryId);
      if (!studentPlacementEnquiry || studentPlacementEnquiry.isDeleted) {
           throw new AppError(StatusCodes.NOT_FOUND, 'Student placement enquiry not found');
      }
-     placementIds.forEach(async (placementId) => {
+     if (studentPlacementEnquiry.firstPayment !== 'paid') {
+          throw new AppError(StatusCodes.BAD_REQUEST, 'First payment not completed yet');
+     }
+     payload.placementIds.forEach(async (placementId) => {
           const placement = await Placement.findById(placementId);
           if (!placement || placement.isDeleted) {
           } else {
@@ -52,6 +59,7 @@ const matchPlacement = async (enquiryId: string, placementIds: string[]) => {
                });
           }
      });
+     await StudentPlacementEnquiry.findByIdAndUpdate(enquiryId, { finalPaymentAmount: payload.finalPaymentAmount ,stage:"awaiting response"}, { new: true });
      return null;
 };
 
@@ -260,8 +268,48 @@ const adminOverview = async (year: number) => {
      };
 };
 
+const getHospitals = async (): Promise<IHospital[]> => {
+     const hospitals = await Hospital.find({ isDeleted: false }).populate('userId', 'email');
+     return hospitals;
+};
+
+const getAllPlacements = async (): Promise<IPlacement[]> => {
+     const placements = await Placement.find({ isDeleted: false }).populate('hospitalId', 'name location');
+     return placements;
+};
+
+const getAllAvailablePlacements = async (): Promise<IPlacement[]> => {
+     const startOfToday = new Date();
+     startOfToday.setHours(0, 0, 0, 0);
+
+     const placements = await Placement.aggregate([
+          { $match: { isDeleted: false, status: 'available' } },
+          {
+               $addFields: {
+                    deadlineDate: {
+                         $dateFromString: {
+                              dateString: '$deadline',
+                              onError: null,
+                              onNull: null,
+                         },
+                    },
+               },
+          },
+          {
+               $match: {
+                    $expr: {
+                         $and: [{ $gt: ['$totalSeats', '$filledSeats'] }, { $ne: ['$deadlineDate', null] }, { $lt: ['$deadlineDate', startOfToday] }],
+                    },
+               },
+          },
+          { $project: { deadlineDate: 0 } },
+     ]);
+
+     return placements as IPlacement[];
+};
 export const AdminService = {
      changeStudentPlacementEnquiryStatus,
      adminOverview,
-     changeStudentPlacementEnquiryStage,matchPlacement
+     changeStudentPlacementEnquiryStage,
+     matchPlacement,
 };

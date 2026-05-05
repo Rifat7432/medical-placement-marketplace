@@ -48,9 +48,16 @@ router.post(
 );
 
 router.get('/:id', auth(USER_ROLES.STUDENT, USER_ROLES.ADMIN, USER_ROLES.HOSPITAL), StudentPlacementEnquiryController.getStudentPlacementEnquiry);
+router.get('/admin/:id', auth(USER_ROLES.ADMIN), StudentPlacementEnquiryController.getStudentPlacementEnquiryForAdmin);
 
+
+
+
+
+router.patch('/choose/:id', validateRequest(StudentPlacementEnquiryValidation.chooseStudentPlacementEnquiryZodSchema), StudentPlacementEnquiryController.chooseStudentPlacementEnquiry);
 
 // router.patch('/:id', validateRequest(StudentPlacementEnquiryValidation.updateStudentPlacementEnquiryZodSchema), StudentPlacementEnquiryController.updateStudentPlacementEnquiry);
+
 // router.delete('/:id', StudentPlacementEnquiryController.deleteStudentPlacementEnquiry);
 
 export const StudentPlacementEnquiryRouter = router;
