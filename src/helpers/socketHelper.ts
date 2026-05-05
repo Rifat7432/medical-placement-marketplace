@@ -90,7 +90,6 @@ const socket = (io: Server) => {
           // MARK AS READ
           // =========================
           socket.on('markAsRead', async (data) => {
-               data = data;
                try {
                     await Message.updateMany(
                          {
