@@ -10,7 +10,7 @@ const router = express.Router();
 router.get('/', auth(USER_ROLES.ADMIN), HospitalController.getHospitals);
 
 router.get('/profile', auth(USER_ROLES.HOSPITAL), HospitalController.getHospitalProfile);
-
+router.get('/hospital-overview', auth(USER_ROLES.HOSPITAL), HospitalController.hospitalOverview);
 // router.get('/:id', HospitalController.getHospital);
 // router.patch('/:id', validateRequest(HospitalValidation.updateHospitalZodSchema), HospitalController.updateHospital);
 // router.delete('/:id', HospitalController.deleteHospital);

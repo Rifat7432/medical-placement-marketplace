@@ -69,7 +69,11 @@ const deleteHospital = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const hospitalOverview = catchAsync(async (req, res) => {
+     const result = await HospitalService.hospitalOverview(req.user.id);
 
+     sendResponse(res, { success: true, statusCode: StatusCodes.OK, message: 'Hospital overview retrieved successfully', data: result });
+});
 export const HospitalController = {
 
   getHospitals,
@@ -78,5 +82,6 @@ export const HospitalController = {
   deleteHospital,
 
 
-  getHospitalProfile
+  getHospitalProfile,
+  hospitalOverview
 };
