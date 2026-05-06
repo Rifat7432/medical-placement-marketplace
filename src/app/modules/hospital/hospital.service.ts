@@ -10,7 +10,7 @@ const getHospitals = async (): Promise<IHospital[]> => {
   return hospitals;
 };
 const getHospitalProfile = async (id: string): Promise<IHospital | null> => {
-  const hospital = await Hospital.findById(id).populate('userId', 'email');
+  const hospital = await Hospital.findOne({ userId: id }).populate('userId', 'email');
   return hospital;
 };
 
