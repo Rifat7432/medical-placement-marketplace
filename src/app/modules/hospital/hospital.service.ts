@@ -34,19 +34,93 @@ const hospitalOverview = async (id: string) => {
           status: 'available',
           isDeleted: { $ne: true },
      }).countDocuments();
-     const totalPlacements = Placement.countDocuments({ hospitalId: id, isDeleted: { $ne: true } });
+     const applicationCounts = await Placement.aggregate([
+          {
+               $match: {
+                    isDeleted: { $ne: true },
+                    hospitalId: new mongoose.Types.ObjectId(id),
+               },
+          },
+          {
+               $lookup: {
+                    from: 'studentplacementenquiries',
+                    let: { placementId: '$_id' },
+                    pipeline: [
+                         {
+                              $match: {
+                                   $expr: {
+                                        $eq: ['$chosenPlacementId', '$$placementId'],
+                                   },
+                                   isDeleted: { $ne: true },
+                              },
+                         },
+                    ],
+                    as: 'applications',
+               },
+          },
+          {
+               $project: {
+                    totalApplications: {
+                         $size: '$applications',
+                    },
 
+                    approvedApplications: {
+                         $size: {
+                              $filter: {
+                                   input: '$applications',
+                                   as: 'application',
+                                   cond: {
+                                        $eq: ['$$application.hospitalStatus', 'approved'],
+                                   },
+                              },
+                         },
+                    },
 
+                    pendingApplications: {
+                         $size: {
+                              $filter: {
+                                   input: '$applications',
+                                   as: 'application',
+                                   cond: {
+                                        $eq: ['$$application.hospitalStatus', 'pending'],
+                                   },
+                              },
+                         },
+                    },
+               },
+          },
+          {
+               $group: {
+                    _id: null,
 
-     
+                    totalApplications: {
+                         $sum: '$totalApplications',
+                    },
+
+                    approvedApplications: {
+                         $sum: '$approvedApplications',
+                    },
+
+                    pendingApplications: {
+                         $sum: '$pendingApplications',
+                    },
+               },
+          },
+     ]);
+
      const recentPlacements = await Placement.find({
           isDeleted: { $ne: true },
      })
           .sort({ createdAt: -1 })
-          .limit(10);
+          .limit(3);
 
-     const [activePlacementsData, totalPlacementsData] = await Promise.all([activePlacements, totalPlacements]);
-     return { activePlacementsData, totalPlacementsData };
+     return {
+          activePlacements,
+          totalApplications: applicationCounts.length > 0 ? applicationCounts[0].totalApplications : 0,
+          approvedApplications: applicationCounts.length > 0 ? applicationCounts[0].approvedApplications : 0,
+          pendingApplications: applicationCounts.length > 0 ? applicationCounts[0].pendingApplications : 0,
+          recentPlacements,
+     };
 };
 export const HospitalService = {
      hospitalOverview,

@@ -10,7 +10,7 @@ const verifyStatusZodSchema = z.object({
 const matchPlacementZodSchema = z.object({
      body: z.object({
      
-          placementIds: z.array(z.string().uuid()),
+          placementIds: z.array(z.string()),
      }),
 });
 

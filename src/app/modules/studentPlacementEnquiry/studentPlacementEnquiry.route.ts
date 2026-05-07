@@ -54,7 +54,7 @@ router.get('/admin/:id', auth(USER_ROLES.ADMIN), StudentPlacementEnquiryControll
 
 
 
-router.patch('/choose/:id', validateRequest(StudentPlacementEnquiryValidation.chooseStudentPlacementEnquiryZodSchema), StudentPlacementEnquiryController.chooseStudentPlacementEnquiry);
+router.patch('/choose/:id',auth(USER_ROLES.STUDENT), validateRequest(StudentPlacementEnquiryValidation.chooseStudentPlacementEnquiryZodSchema), StudentPlacementEnquiryController.chooseStudentPlacementEnquiry);
 
 // router.patch('/:id', validateRequest(StudentPlacementEnquiryValidation.updateStudentPlacementEnquiryZodSchema), StudentPlacementEnquiryController.updateStudentPlacementEnquiry);
 
