@@ -51,13 +51,19 @@ router.get('/:id', auth(USER_ROLES.STUDENT, USER_ROLES.ADMIN, USER_ROLES.HOSPITA
 router.get('/hospital/:id', auth(USER_ROLES.HOSPITAL), StudentPlacementEnquiryController.getStudentPlacementEnquiryForHospital);
 router.get('/admin/:id', auth(USER_ROLES.ADMIN), StudentPlacementEnquiryController.getStudentPlacementEnquiryForAdmin);
 
+router.patch(
+     '/choose/:id',
+     auth(USER_ROLES.STUDENT),
+     validateRequest(StudentPlacementEnquiryValidation.chooseStudentPlacementEnquiryZodSchema),
+     StudentPlacementEnquiryController.chooseStudentPlacementEnquiry,
+);
 
-
-
-
-router.patch('/choose/:id',auth(USER_ROLES.STUDENT), validateRequest(StudentPlacementEnquiryValidation.chooseStudentPlacementEnquiryZodSchema), StudentPlacementEnquiryController.chooseStudentPlacementEnquiry);
-
-// router.patch('/:id', validateRequest(StudentPlacementEnquiryValidation.updateStudentPlacementEnquiryZodSchema), StudentPlacementEnquiryController.updateStudentPlacementEnquiry);
+router.patch(
+     '/:id',
+     auth(USER_ROLES.HOSPITAL),
+     validateRequest(StudentPlacementEnquiryValidation.updateHospitalStatusPlacementEnquiryZodSchema),
+     StudentPlacementEnquiryController.updateHospitalStatusPlacementEnquiry,
+);
 
 // router.delete('/:id', StudentPlacementEnquiryController.deleteStudentPlacementEnquiry);
 

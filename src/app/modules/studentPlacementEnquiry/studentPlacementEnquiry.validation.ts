@@ -23,6 +23,11 @@ const chooseStudentPlacementEnquiryZodSchema = z.object({
     placementId: z.string({ required_error: 'Placement ID is required' }),
   }),
 });
+const updateHospitalStatusPlacementEnquiryZodSchema = z.object({
+  body: z.object({
+    hospitalStatus: z.enum(['pending', 'approved', 'rejected'], { required_error: 'Hospital status is required' }),
+  }),
+});
 
 const updateStudentPlacementEnquiryZodSchema = z.object({
   body: z.object({
@@ -45,5 +50,6 @@ const updateStudentPlacementEnquiryZodSchema = z.object({
 export const StudentPlacementEnquiryValidation = {
   createStudentPlacementEnquiryZodSchema,
   updateStudentPlacementEnquiryZodSchema,
-  chooseStudentPlacementEnquiryZodSchema
+  chooseStudentPlacementEnquiryZodSchema,
+  updateHospitalStatusPlacementEnquiryZodSchema
 };

@@ -4,6 +4,7 @@ import { Hospital } from './hospital.model';
 import AppError from '../../../errors/AppError';
 import { Placement } from '../placement/placement.model';
 import mongoose from 'mongoose';
+import { User } from '../user/user.model';
 
 const getHospitals = async (): Promise<IHospital[]> => {
      const hospitals = await Hospital.find({ isDeleted: false }).populate('userId', 'email');
@@ -20,7 +21,11 @@ const getHospitalById = async (id: string): Promise<IHospital | null> => {
 };
 
 const updateHospital = async (id: string, payload: Partial<IHospital>): Promise<IHospital | null> => {
-     const hospital = await Hospital.findByIdAndUpdate(id, payload, { new: true });
+     const existingHospital = await User.findById(id);
+     if (!existingHospital) {
+          throw new AppError(StatusCodes.NOT_FOUND, 'Hospital not found');
+     }
+     const hospital = await Hospital.findOneAndUpdate({ userId: id }, payload, { new: true });
      return hospital;
 };
 

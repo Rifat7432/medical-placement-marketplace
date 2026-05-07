@@ -338,6 +338,10 @@ const updateStudentPlacementEnquiry = async (id: string, payload: Partial<IStude
      const studentPlacementEnquiry = await StudentPlacementEnquiry.findByIdAndUpdate(id, payload, { new: true });
      return studentPlacementEnquiry;
 };
+const updateHospitalStatusPlacementEnquiry = async (id: string, payload: Partial<IStudentPlacementEnquiry>) => {
+     const studentPlacementEnquiry = await StudentPlacementEnquiry.findByIdAndUpdate(id, { hospitalStatus: payload.hospitalStatus }, { new: true });
+     return studentPlacementEnquiry;
+};
 const deleteStudentPlacementEnquiry = async (id: string): Promise<IStudentPlacementEnquiry | null> => {
      const studentPlacementEnquiry = await StudentPlacementEnquiry.findByIdAndDelete(id);
      return studentPlacementEnquiry;
@@ -353,5 +357,6 @@ export const StudentPlacementEnquiryService = {
      deleteStudentPlacementEnquiry,
      getStudentPlacementEnquiryByIdForAdmin,
      chooseStudentPlacementEnquiry,
-     getStudentPlacementEnquiryByIdForHospital
+     getStudentPlacementEnquiryByIdForHospital,
+     updateHospitalStatusPlacementEnquiry,
 };
