@@ -17,7 +17,7 @@ router.post('/dashboard/forget-password', validateRequest(AuthValidation.createF
 
 router.post('/dashboard/reset-password', auth(USER_ROLES.ADMIN), validateRequest(AuthValidation.createResetPasswordZodSchema), AuthController.resetPasswordByUrl);
 
-router.post('/change-password', auth(USER_ROLES.ADMIN, USER_ROLES.STUDENT), validateRequest(AuthValidation.createChangePasswordZodSchema), AuthController.changePassword);
+router.post('/change-password', auth(USER_ROLES.ADMIN, USER_ROLES.STUDENT,USER_ROLES.HOSPITAL), validateRequest(AuthValidation.createChangePasswordZodSchema), AuthController.changePassword);
 router.post('/resend-otp', AuthController.resendOtp);
 
 export const AuthRouter = router;
