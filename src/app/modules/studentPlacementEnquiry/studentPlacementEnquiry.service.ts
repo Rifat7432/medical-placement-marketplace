@@ -72,62 +72,61 @@ const getStudentPlacementEnquiriesForAdmin = async (): Promise<IStudentPlacement
      return studentPlacementEnquiries;
 };
 const getStudentPlacementEnquiriesForHospital = async (hospitalId: string): Promise<IStudentPlacementEnquiry[]> => {
-    const studentPlacementEnquiries =
-  await StudentPlacementEnquiry.aggregate([
-    {
-      $match: {
-        chosenPlacementId: { $exists: true, $ne: null },
-      },
-    },
-
-    {
-      $lookup: {
-        from: 'placements',
-        localField: 'chosenPlacementId',
-        foreignField: '_id',
-        as: 'chosenPlacement',
-      },
-    },
-
-    {
-      $unwind: '$chosenPlacement',
-    },
-
-    // ✅ NOW you can filter by hospitalId
-    {
-      $match: {
-        'chosenPlacement.hospitalId': new mongoose.Types.ObjectId(hospitalId),
-      },
-    },
-
-    {
-      $lookup: {
-        from: 'students',
-        localField: 'studentId',
-        foreignField: 'userId',
-        pipeline: [
+     const studentPlacementEnquiries = await StudentPlacementEnquiry.aggregate([
           {
-            $project: {
-              _id: 1,
-              fullName: 1,
-              phoneNumber: 1,
-              university: 1,
-              yearOfStudy: 1,
-              preferredCities: 1,
-              preferredSpecialty: 1,
-              languages: 1,
-              profileImage: 1,
-            },
+               $match: {
+                    chosenPlacementId: { $exists: true, $ne: null },
+               },
           },
-        ],
-        as: 'studentProfile',
-      },
-    },
 
-    {
-      $unwind: '$studentProfile',
-    },
-  ]);
+          {
+               $lookup: {
+                    from: 'placements',
+                    localField: 'chosenPlacementId',
+                    foreignField: '_id',
+                    as: 'chosenPlacement',
+               },
+          },
+
+          {
+               $unwind: '$chosenPlacement',
+          },
+
+          // ✅ NOW you can filter by hospitalId
+          {
+               $match: {
+                    'chosenPlacement.hospitalId': new mongoose.Types.ObjectId(hospitalId),
+               },
+          },
+
+          {
+               $lookup: {
+                    from: 'students',
+                    localField: 'studentId',
+                    foreignField: 'userId',
+                    pipeline: [
+                         {
+                              $project: {
+                                   _id: 1,
+                                   fullName: 1,
+                                   phoneNumber: 1,
+                                   university: 1,
+                                   yearOfStudy: 1,
+                                   preferredCities: 1,
+                                   preferredSpecialty: 1,
+                                   languages: 1,
+                                   profileImage: 1,
+                              },
+                         },
+                    ],
+                    as: 'studentProfile',
+               },
+          },
+
+          {
+               $unwind: '$studentProfile',
+          },
+     ]);
      return studentPlacementEnquiries as IStudentPlacementEnquiry[];
 };
 
@@ -254,6 +253,65 @@ const getStudentPlacementEnquiryByIdForStudent = async (id: string, user: JwtPay
      }
      return studentPlacement;
 };
+const getStudentPlacementEnquiryByIdForHospital = async (hospitalId: string, enquiryId: string) => {
+     const studentPlacementEnquiries = await StudentPlacementEnquiry.aggregate([
+          {
+               $match: {
+                    _id: new mongoose.Types.ObjectId(enquiryId),
+                    chosenPlacementId: { $exists: true, $ne: null },
+               },
+          },
+
+          {
+               $lookup: {
+                    from: 'placements',
+                    localField: 'chosenPlacementId',
+                    foreignField: '_id',
+                    as: 'chosenPlacement',
+               },
+          },
+
+          {
+               $unwind: '$chosenPlacement',
+          },
+
+          // ✅ NOW you can filter by hospitalId
+          {
+               $match: {
+                    'chosenPlacement.hospitalId': new mongoose.Types.ObjectId(hospitalId),
+               },
+          },
+
+          {
+               $lookup: {
+                    from: 'students',
+                    localField: 'studentId',
+                    foreignField: 'userId',
+                    pipeline: [
+                         {
+                              $project: {
+                                   _id: 1,
+                                   fullName: 1,
+                                   phoneNumber: 1,
+                                   university: 1,
+                                   yearOfStudy: 1,
+                                   preferredCities: 1,
+                                   preferredSpecialty: 1,
+                                   languages: 1,
+                                   profileImage: 1,
+                              },
+                         },
+                    ],
+                    as: 'studentProfile',
+               },
+          },
+
+          {
+               $unwind: '$studentProfile',
+          },
+     ]);
+     return studentPlacementEnquiries.length > 0 ? (studentPlacementEnquiries[0] as IStudentPlacementEnquiry) : null;
+};
 const getStudentPlacementEnquiryByIdForAdmin = async (id: string) => {
      const studentPlacementEnquiry = await StudentPlacementEnquiry.findById(id);
      if (!studentPlacementEnquiry) {
@@ -295,4 +353,5 @@ export const StudentPlacementEnquiryService = {
      deleteStudentPlacementEnquiry,
      getStudentPlacementEnquiryByIdForAdmin,
      chooseStudentPlacementEnquiry,
+     getStudentPlacementEnquiryByIdForHospital
 };

@@ -47,7 +47,8 @@ router.post(
      StudentPlacementEnquiryController.createStudentPlacementEnquiry,
 );
 
-router.get('/:id', auth(USER_ROLES.STUDENT, USER_ROLES.ADMIN, USER_ROLES.HOSPITAL), StudentPlacementEnquiryController.getStudentPlacementEnquiry);
+router.get('/:id', auth(USER_ROLES.STUDENT, USER_ROLES.ADMIN, USER_ROLES.HOSPITAL), StudentPlacementEnquiryController.getStudentPlacementEnquiryForStudent);
+router.get('/hospital/:id', auth(USER_ROLES.HOSPITAL), StudentPlacementEnquiryController.getStudentPlacementEnquiryForHospital);
 router.get('/admin/:id', auth(USER_ROLES.ADMIN), StudentPlacementEnquiryController.getStudentPlacementEnquiryForAdmin);
 
 

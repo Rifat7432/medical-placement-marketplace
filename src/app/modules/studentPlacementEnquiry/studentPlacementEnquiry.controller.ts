@@ -46,7 +46,7 @@ const getStudentPlacementEnquiriesForAdmin = catchAsync(async (req, res) => {
      });
 });
 
-const getStudentPlacementEnquiry = catchAsync(async (req, res) => {
+const getStudentPlacementEnquiryForStudent = catchAsync(async (req, res) => {
      const { id } = req.params;
      const user = req.user;
      const result = await StudentPlacementEnquiryService.getStudentPlacementEnquiryByIdForStudent(id, user);
@@ -58,6 +58,18 @@ const getStudentPlacementEnquiry = catchAsync(async (req, res) => {
           data: result,
      });
 });
+const getStudentPlacementEnquiryForHospital = catchAsync(async (req, res) => {
+     const { id } = req.params;
+     const user = req.user;
+     const result = await StudentPlacementEnquiryService.getStudentPlacementEnquiryByIdForHospital(user?.id, id);
+
+     sendResponse(res, {
+          success: true,
+          statusCode: StatusCodes.OK,
+          message: 'Applications retrieved successfully',
+          data: result,
+     });
+});
 const getStudentPlacementEnquiryForAdmin = catchAsync(async (req, res) => {
      const { id } = req.params;
      const result = await StudentPlacementEnquiryService.getStudentPlacementEnquiryByIdForAdmin(id);
@@ -65,7 +77,7 @@ const getStudentPlacementEnquiryForAdmin = catchAsync(async (req, res) => {
      sendResponse(res, {
           success: true,
           statusCode: StatusCodes.OK,
-          message: 'Student placement enquiry retrieved successfully',
+          message: 'Placement enquiry retrieved successfully',
           data: result,
      });
 });
@@ -114,8 +126,10 @@ export const StudentPlacementEnquiryController = {
      getStudentPlacementEnquiries,
      getStudentPlacementEnquiriesForAdmin,
      getStudentPlacementEnquiriesForHospital,
-     getStudentPlacementEnquiry,
+     getStudentPlacementEnquiryForStudent,
+     getStudentPlacementEnquiryForHospital,
+     getStudentPlacementEnquiryForAdmin,
      updateStudentPlacementEnquiry,
      deleteStudentPlacementEnquiry,
-     getStudentPlacementEnquiryForAdmin,chooseStudentPlacementEnquiry
+     chooseStudentPlacementEnquiry
 };
