@@ -12,7 +12,7 @@ router.get('/', auth(USER_ROLES.ADMIN), HospitalController.getHospitals);
 router.get('/profile', auth(USER_ROLES.HOSPITAL), HospitalController.getHospitalProfile);
 router.get('/dashboard/overview', auth(USER_ROLES.HOSPITAL), HospitalController.hospitalOverview);
 // router.get('/:id', HospitalController.getHospital);
-router.patch('/:id', auth(USER_ROLES.HOSPITAL), validateRequest(HospitalValidation.updateHospitalZodSchema), HospitalController.updateHospital);
+router.patch('/', auth(USER_ROLES.HOSPITAL), validateRequest(HospitalValidation.updateHospitalZodSchema), HospitalController.updateHospital);
 // router.delete('/:id', HospitalController.deleteHospital);
 
 export const HospitalRouter = router;

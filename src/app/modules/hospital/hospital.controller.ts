@@ -40,7 +40,7 @@ const getHospital = catchAsync(async (req, res) => {
 });
 
 const updateHospital = catchAsync(async (req, res) => {
-     const { id } = req.params;
+     const { id } = req.user;
      const updateData = req.body;
      const result = await HospitalService.updateHospital(id, updateData);
      if (!result) {
