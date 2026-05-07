@@ -72,64 +72,62 @@ const getStudentPlacementEnquiriesForAdmin = async (): Promise<IStudentPlacement
      return studentPlacementEnquiries;
 };
 const getStudentPlacementEnquiriesForHospital = async (hospitalId: string): Promise<IStudentPlacementEnquiry[]> => {
-     const studentPlacementEnquiries = await StudentPlacementEnquiry.aggregate([
+    const studentPlacementEnquiries =
+  await StudentPlacementEnquiry.aggregate([
+    {
+      $match: {
+        chosenPlacementId: { $exists: true, $ne: null },
+      },
+    },
+
+    {
+      $lookup: {
+        from: 'placements',
+        localField: 'chosenPlacementId',
+        foreignField: '_id',
+        as: 'chosenPlacement',
+      },
+    },
+
+    {
+      $unwind: '$chosenPlacement',
+    },
+
+    // ✅ NOW you can filter by hospitalId
+    {
+      $match: {
+        'chosenPlacement.hospitalId': new mongoose.Types.ObjectId(hospitalId),
+      },
+    },
+
+    {
+      $lookup: {
+        from: 'students',
+        localField: 'studentId',
+        foreignField: 'userId',
+        pipeline: [
           {
-               $match: {
-                    'chosenPlacementId': { $exists: true, $ne: null },
-                    'chosenPlacement.hospitalId': new mongoose.Types.ObjectId(hospitalId),
-               },
+            $project: {
+              _id: 1,
+              fullName: 1,
+              phoneNumber: 1,
+              university: 1,
+              yearOfStudy: 1,
+              preferredCities: 1,
+              preferredSpecialty: 1,
+              languages: 1,
+              profileImage: 1,
+            },
           },
-          {
-               $lookup: {
-                    from: 'placements',
-                    localField: 'chosenPlacementId',
-                    foreignField: '_id',
-                    pipeline: [
-                         {
-                              $project: {
-                                   _id: 1,
-                                   department: 1,
-                                   status: 1,
-                                   durationWeeks: 1,
-                                   deadline: 1,
-                                   startDate: 1,
-                              },
-                         },
-                    ],
-                    as: 'chosenPlacement',
-               },
-          },
-          {
-               $unwind: '$chosenPlacement',
-          },
-          {
-               $lookup: {
-                    from: 'students',
-                    localField: 'studentId',
-                    foreignField: 'userId',
-                    pipeline: [
-                         {
-                              $project: {
-                                   _id: 1,
-                                   fullName: 1,
-                                   phoneNumber: 1,
-                                   university: 1,
-                                   yearOfStudy: 1,
-                                   preferredCities: 1,
-                                   preferredSpecialty: 1,
-                                   languages: 1,
-                                   profileImage: 1,
-                                   // include only the fields you need
-                              },
-                         },
-                    ],
-                    as: 'studentProfile',
-               },
-          },
-          {
-               $unwind: '$studentProfile',
-          },
-     ]);
+        ],
+        as: 'studentProfile',
+      },
+    },
+
+    {
+      $unwind: '$studentProfile',
+    },
+  ]);
      return studentPlacementEnquiries as IStudentPlacementEnquiry[];
 };
 
