@@ -7,7 +7,8 @@ import { notFound } from './app/middleware/notFound';
 import { welcome } from './utils/welcome';
 import config from './config';
 import path from 'path';
-import { webhook } from 'twilio/lib/webhooks/webhooks';
+import { webhook } from './helpers/stripe/handleStripeWebhook';
+
 const app: Application = express();
 
 app.set('view engine', 'ejs');
@@ -32,7 +33,9 @@ app.use(express.static('public'));
 
 //router
 app.use('/api/v1', router);
-app.use('/stripe/webhook', webhook());
+app.post('/stripe/webhook', (req: Request, res: Response) => {
+     webhook(req, res);
+});
 //live response
 app.get('/', (req: Request, res: Response) => {
      res.send(welcome());
