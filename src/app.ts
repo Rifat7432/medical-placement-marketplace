@@ -24,6 +24,12 @@ app.use(
           credentials: true,
      }),
 );
+
+app.post(
+     '/stripe/webhook',
+     express.raw({ type: 'application/json' }),
+     webhook
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -33,9 +39,9 @@ app.use(express.static('public'));
 
 //router
 app.use('/api/v1', router);
-app.post('/stripe/webhook', (req: Request, res: Response) => {
-     webhook(req, res);
-});
+// app.post('/stripe/webhook', (req: Request, res: Response) => {
+//      webhook(req, res);
+// });
 //live response
 app.get('/', (req: Request, res: Response) => {
      res.send(welcome());
