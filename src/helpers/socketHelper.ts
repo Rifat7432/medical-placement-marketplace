@@ -39,7 +39,7 @@ const socket = (io: Server) => {
      // =========================
      io.on('connection', (socket: AuthenticatedSocket) => {
           logger.info(colors.blue(`User ${socket.user.email} connected`));
-
+          socket.join(socket.user._id.toString());
           // JOIN ROOM
           socket.on('joinConversation', (conversationId: string) => {
                socket.join(conversationId);
@@ -60,7 +60,6 @@ const socket = (io: Server) => {
                     const isParticipant = conversation?.participants.some((id: any) => id.toString() === socket.user._id.toString());
 
                     if (!conversation || !isParticipant) {
-                        
                          socket.emit('auth_error', { message: 'Access denied' });
                          return;
                     }

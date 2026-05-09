@@ -118,6 +118,17 @@ const chooseStudentPlacementEnquiry = catchAsync(async (req, res) => {
           data: result,
      });
 });
+const sendToHospital = catchAsync(async (req, res) => {
+     const { id } = req.params;
+     const result = await StudentPlacementEnquiryService.sendToHospital(id);
+
+     sendResponse(res, {
+          success: true,
+          statusCode: StatusCodes.OK,
+          message: 'Student placement enquiry sent to hospital successfully',
+          data: result,
+     });
+});
 
 const deleteStudentPlacementEnquiry = catchAsync(async (req, res) => {
      const { id } = req.params;
@@ -145,4 +156,5 @@ export const StudentPlacementEnquiryController = {
      deleteStudentPlacementEnquiry,
      chooseStudentPlacementEnquiry,
      updateHospitalStatusPlacementEnquiry,
+     sendToHospital,
 };

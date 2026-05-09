@@ -65,6 +65,12 @@ router.patch(
      StudentPlacementEnquiryController.updateHospitalStatusPlacementEnquiry,
 );
 
+router.patch(
+     '/send-to-hospital/:id',
+     auth(USER_ROLES.ADMIN),
+     StudentPlacementEnquiryController.sendToHospital,
+);
+
 // router.delete('/:id', StudentPlacementEnquiryController.deleteStudentPlacementEnquiry);
 
 export const StudentPlacementEnquiryRouter = router;

@@ -346,7 +346,10 @@ const deleteStudentPlacementEnquiry = async (id: string): Promise<IStudentPlacem
      const studentPlacementEnquiry = await StudentPlacementEnquiry.findByIdAndDelete(id);
      return studentPlacementEnquiry;
 };
-
+const sendToHospital = async (id: string): Promise<IStudentPlacementEnquiry | null> => {
+     const studentPlacementEnquiry = await StudentPlacementEnquiry.findByIdAndUpdate(id, { isVisibleToHospitals: true }, { new: true });
+     return studentPlacementEnquiry;
+};
 export const StudentPlacementEnquiryService = {
      createStudentPlacementEnquiryToDB,
      getStudentPlacementEnquiries,
@@ -359,4 +362,5 @@ export const StudentPlacementEnquiryService = {
      chooseStudentPlacementEnquiry,
      getStudentPlacementEnquiryByIdForHospital,
      updateHospitalStatusPlacementEnquiry,
+     sendToHospital,
 };
