@@ -18,11 +18,11 @@ const createPaymentIntent = async (userId: string, enquiryId: string) => {
      } else if (enquiry.finalPayment === 'pending' && enquiry.firstPayment === 'paid') {
           amount = enquiry.finalPaymentAmount;
      }
-     if (!amount) {
+     if (amount === null) {
           throw new AppError(StatusCodes.BAD_REQUEST, 'No pending payment found for this enquiry');
      }
      const paymentIntent = await stripe.paymentIntents.create({
-          amount: amount * 100,
+          amount: Math.round(amount * 100),
           currency: 'gbp',
 
           automatic_payment_methods: {
@@ -47,7 +47,7 @@ const createPaymentIntent = async (userId: string, enquiryId: string) => {
           userId,
           enquiryId,
           paymentIntentId: paymentIntent.id,
-          amount: amount * 100,
+          amount: Math.round(amount * 100),
      });
 
      return {

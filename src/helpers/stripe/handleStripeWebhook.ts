@@ -6,25 +6,15 @@ import Stripe from 'stripe';
 import config from '../../config';
 import { StudentPlacementEnquiry } from '../../app/modules/studentPlacementEnquiry/studentPlacementEnquiry.model';
 
-export const webhook = async (
-     req: Request,
-     res: Response
-): Promise<void> => {
+export const webhook = async (req: Request, res: Response): Promise<void> => {
      const sig = req.headers['stripe-signature'] as string;
 
      let event: Stripe.Event;
 
      try {
-          event = stripe.webhooks.constructEvent(
-               req.body,
-               sig,
-               config?.stripe?.stripe_webhook_secret as string
-          );
+          event = stripe.webhooks.constructEvent(req.body, sig, config?.stripe?.stripe_webhook_secret as string);
      } catch (err: any) {
-          console.error(
-               'Webhook signature verification failed:',
-               err.message
-          );
+          console.error('Webhook signature verification failed:', err.message);
 
           res.status(400).send(`Webhook Error: ${err.message}`);
           return;
@@ -44,30 +34,21 @@ export const webhook = async (
           );
 
           if (paymentInfo) {
-               const enquiry =
-                    await StudentPlacementEnquiry.findById(
-                         paymentInfo.enquiryId
-                    );
+               const enquiry = await StudentPlacementEnquiry.findById(paymentInfo.enquiryId);
 
-               if (enquiry?.firstPayment === 'pending') {
-                    await StudentPlacementEnquiry.findByIdAndUpdate(
-                         paymentInfo.enquiryId,
-                         {
-                              firstPayment: 'paid',
-                              firstPaymentId: paymentInfo._id,
-                              stage: 'matching required',
-                              studentStatus: 'matching',
-                         }
-                    );
-               } else if (enquiry?.finalPayment === 'pending') {
-                    await StudentPlacementEnquiry.findByIdAndUpdate(
-                         paymentInfo.enquiryId,
-                         {
-                              finalPayment: 'paid',
-                              finalPaymentId: paymentInfo._id,
-                              stage: 'completed',
-                         }
-                    );
+               if (enquiry?.firstPayment === 'pending' && enquiry.finalPayment === 'pending') {
+                    await StudentPlacementEnquiry.findByIdAndUpdate(paymentInfo.enquiryId, {
+                         firstPayment: 'paid',
+                         firstPaymentId: paymentInfo._id,
+                         stage: 'matching required',
+                         studentStatus: 'matching',
+                    });
+               } else if (enquiry?.finalPayment === 'pending' && enquiry.firstPayment === 'paid') {
+                    await StudentPlacementEnquiry.findByIdAndUpdate(paymentInfo.enquiryId, {
+                         finalPayment: 'paid',
+                         finalPaymentId: paymentInfo._id,
+                         stage: 'completed',
+                    });
                }
           }
      }
@@ -78,7 +59,7 @@ export const webhook = async (
                { paymentIntentId: data.id },
                {
                     status: 'failed',
-               }
+               },
           );
      }
 
