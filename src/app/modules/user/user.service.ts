@@ -14,6 +14,7 @@ import { IStudent } from '../student/student.interface';
 import { IHospital } from '../hospital/hospital.interface';
 import { Hospital } from '../hospital/hospital.model';
 import { Conversation } from '../conversation/conversation.model';
+import { createNotification, createBulkNotifications, notificationMessages } from '../../../helpers/notificationHelper';
 
 // create user
 
@@ -45,7 +46,23 @@ const createStudentToDB = async (payload: Partial<IUser & IStudent>) => {
                participants: [createUser._id, admin._id],
                createdBy: admin._id,
           });
+
+          // Send notification to admin about new student registration
+          await createNotification({
+               receiver: admin._id.toString(),
+               title: notificationMessages.ADMIN_NEW_STUDENT_SIGNUP.title,
+               message: `New student registered: ${payload.fullName || payload.email}`,
+               type: notificationMessages.ADMIN_NEW_STUDENT_SIGNUP.type,
+          });
      }
+
+     // Send welcome notification to student
+     await createNotification({
+          receiver: createUser._id.toString(),
+          title: notificationMessages.STUDENT_SIGNUP.title,
+          message: notificationMessages.STUDENT_SIGNUP.message,
+          type: notificationMessages.STUDENT_SIGNUP.type,
+     });
 
      //send email
      const otp = generateOTP(4);
@@ -97,7 +114,23 @@ const createHospitalToDB = async (payload: Partial<IUser & IHospital>) => {
                participants: [createUser._id, admin._id],
                createdBy: admin._id,
           });
+
+          // Send notification to admin about new hospital registration
+          await createNotification({
+               receiver: admin._id.toString(),
+               title: notificationMessages.ADMIN_NEW_HOSPITAL_SIGNUP.title,
+               message: `New hospital registered: ${payload.hospitalName}`,
+               type: notificationMessages.ADMIN_NEW_HOSPITAL_SIGNUP.type,
+          });
      }
+
+     // Send welcome notification to hospital
+     await createNotification({
+          receiver: createUser._id.toString(),
+          title: notificationMessages.HOSPITAL_SIGNUP.title,
+          message: notificationMessages.HOSPITAL_SIGNUP.message,
+          type: notificationMessages.HOSPITAL_SIGNUP.type,
+     });
 
      //send email
      const values = {
@@ -139,6 +172,26 @@ const handleGoogleAuthentication = async (payload: { email: string; googleId: st
           await Student.create({
                userId: newUser._id,
           });
+
+          const admin = await User.findOne({ role: USER_ROLES.ADMIN });
+          if (admin) {
+               // Send notification to admin about new student registration
+               await createNotification({
+                    receiver: admin._id.toString(),
+                    title: notificationMessages.ADMIN_NEW_STUDENT_SIGNUP.title,
+                    message: `New student registered via Google: ${payload.email}`,
+                    type: notificationMessages.ADMIN_NEW_STUDENT_SIGNUP.type,
+               });
+          }
+
+          // Send welcome notification to student
+          await createNotification({
+               receiver: newUser._id.toString(),
+               title: notificationMessages.STUDENT_SIGNUP.title,
+               message: notificationMessages.STUDENT_SIGNUP.message,
+               type: notificationMessages.STUDENT_SIGNUP.type,
+          });
+
           if (newUser.verified) {
                const jwtData = { id: newUser._id, role: newUser.role, email: newUser.email };
                // create token

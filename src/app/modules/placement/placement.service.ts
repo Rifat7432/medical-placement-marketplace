@@ -4,6 +4,7 @@ import { Placement } from './placement.model';
 import AppError from '../../../errors/AppError';
 import { User } from '../user/user.model';
 import { USER_ROLES } from '../../../enums/user';
+import { createNotification, notificationMessages } from '../../../helpers/notificationHelper';
 
 const createPlacementToDB = async (payload: Partial<IPlacement>, hospitalId: string): Promise<IPlacement> => {
      const isUserExist = await User.findOne({ _id: hospitalId });
@@ -16,6 +17,26 @@ const createPlacementToDB = async (payload: Partial<IPlacement>, hospitalId: str
      if (!placement) {
           throw new AppError(StatusCodes.BAD_REQUEST, 'Failed to create placement');
      }
+
+     // Send notification to hospital
+     await createNotification({
+          receiver: hospitalId,
+          title: notificationMessages.HOSPITAL_PLACEMENT_CREATED.title,
+          message: notificationMessages.HOSPITAL_PLACEMENT_CREATED.message,
+          type: notificationMessages.HOSPITAL_PLACEMENT_CREATED.type,
+     });
+
+     // Send notification to admin about new placement
+     const admin = await User.findOne({ role: USER_ROLES.ADMIN });
+     if (admin) {
+          await createNotification({
+               receiver: admin._id.toString(),
+               title: notificationMessages.ADMIN_NEW_PLACEMENT.title,
+               message: notificationMessages.ADMIN_NEW_PLACEMENT.message,
+               type: notificationMessages.ADMIN_NEW_PLACEMENT.type,
+          });
+     }
+
      return placement;
 };
 
@@ -82,6 +103,17 @@ const deletePlacement = async (id: string): Promise<IPlacement | null> => {
           throw new AppError(StatusCodes.NOT_FOUND, 'Placement not found');
      }
      const placement = await Placement.findOneAndUpdate({ _id: id, isDeleted: false }, { isDeleted: true }, { new: true });
+     
+     if (placement) {
+          // Send notification to hospital about placement deletion
+          await createNotification({
+               receiver: placement.hospitalId.toString(),
+               title: notificationMessages.HOSPITAL_PLACEMENT_DELETED.title,
+               message: notificationMessages.HOSPITAL_PLACEMENT_DELETED.message,
+               type: notificationMessages.HOSPITAL_PLACEMENT_DELETED.type,
+          });
+     }
+
      return placement;
 };
 

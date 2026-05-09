@@ -10,6 +10,7 @@ import { IHospital } from '../hospital/hospital.interface';
 import { IPlacement } from '../placement/placement.interface';
 import { User } from '../user/user.model';
 import { USER_ROLES } from '../../../enums/user';
+import { createNotification, notificationMessages } from '../../../helpers/notificationHelper';
 
 const changeStudentPlacementEnquiryStatus = async (id: string, payload: Partial<{ status: 'pending' | 'approved' | 'rejected' }>) => {
      const studentPlacementEnquiry = await StudentPlacementEnquiry.findById(id);
@@ -19,10 +20,28 @@ const changeStudentPlacementEnquiryStatus = async (id: string, payload: Partial<
 
      if (payload.status === 'rejected') {
           const updatedEnquiry = await StudentPlacementEnquiry.findByIdAndUpdate(id, { adminStatus: payload.status, stage: 'rejected', studentStatus: 'rejected' }, { new: true });
+          
+          // Send rejection notification to student
+          await createNotification({
+               receiver: studentPlacementEnquiry.studentId,
+               title: notificationMessages.STUDENT_ENQUIRY_REJECTED.title,
+               message: notificationMessages.STUDENT_ENQUIRY_REJECTED.message,
+               type: notificationMessages.STUDENT_ENQUIRY_REJECTED.type,
+          });
+
           return updatedEnquiry;
      }
      if (payload.status === 'approved') {
           const updatedEnquiry = await StudentPlacementEnquiry.findByIdAndUpdate(id, { adminStatus: payload.status, stage: 'awaiting for payment', studentStatus: 'approved' }, { new: true });
+          
+          // Send approval notification to student
+          await createNotification({
+               receiver: studentPlacementEnquiry.studentId,
+               title: notificationMessages.STUDENT_ENQUIRY_APPROVED.title,
+               message: notificationMessages.STUDENT_ENQUIRY_APPROVED.message,
+               type: notificationMessages.STUDENT_ENQUIRY_APPROVED.type,
+          });
+
           return updatedEnquiry;
      }
 };
@@ -33,6 +52,15 @@ const changeStudentPlacementEnquiryStage = async (id: string) => {
      }
 
      const updatedEnquiry = await StudentPlacementEnquiry.findByIdAndUpdate(id, { stage: 'matching required', studentStatus: 'matching' }, { new: true });
+     
+     // Send matching started notification to student
+     await createNotification({
+          receiver: studentPlacementEnquiry.studentId,
+          title: notificationMessages.STUDENT_MATCHING_STARTED.title,
+          message: notificationMessages.STUDENT_MATCHING_STARTED.message,
+          type: notificationMessages.STUDENT_MATCHING_STARTED.type,
+     });
+
      return updatedEnquiry;
 };
 const matchPlacement = async (enquiryId: string, payload: { placementIds: string[]; finalPaymentAmount: number }) => {
@@ -43,9 +71,12 @@ const matchPlacement = async (enquiryId: string, payload: { placementIds: string
      if (studentPlacementEnquiry.firstPayment !== 'paid') {
           throw new AppError(StatusCodes.BAD_REQUEST, 'First payment not completed yet');
      }
-     payload.placementIds.forEach(async (placementId) => {
+
+     // Process placements with proper async/await
+     for (const placementId of payload.placementIds) {
           const placement = await Placement.findById(placementId);
           if (!placement || placement.isDeleted) {
+               continue;
           } else {
                const newMatchingPlacement = await MatchingPlacement.create({
                     studentId: studentPlacementEnquiry.studentId,
@@ -53,13 +84,31 @@ const matchPlacement = async (enquiryId: string, payload: { placementIds: string
                     enquiryId: studentPlacementEnquiry._id,
                });
 
-               await Notification.create({
-                    userId: studentPlacementEnquiry.studentId,
-                    title: 'New Placement Match',
+               // Get hospital details for notification
+               const hospital = await Hospital.findById(placement.hospitalId);
+               const hospitalUser = hospital ? await User.findById(hospital.userId) : null;
+
+               // Send notification to student about new placement match
+               await createNotification({
+                    receiver: studentPlacementEnquiry.studentId,
+                    title: notificationMessages.STUDENT_NEW_MATCH.title,
+                    message: `A new placement has been matched for you at ${hospital?.hospitalName || 'a hospital'}. Check your dashboard for details.`,
+                    type: notificationMessages.STUDENT_NEW_MATCH.type,
                });
+
+               // Send notification to hospital about new student match
+               if (hospitalUser) {
+                    await createNotification({
+                         receiver: hospitalUser._id.toString(),
+                         title: notificationMessages.HOSPITAL_NEW_APPLICATION.title,
+                         message: `A student has been matched with your placement. Review their profile in the dashboard.`,
+                         type: notificationMessages.HOSPITAL_NEW_APPLICATION.type,
+                    });
+               }
           }
-     });
-     await StudentPlacementEnquiry.findByIdAndUpdate(enquiryId, { finalPaymentAmount: payload.finalPaymentAmount ,stage:"awaiting response"}, { new: true });
+     }
+
+     await StudentPlacementEnquiry.findByIdAndUpdate(enquiryId, { finalPaymentAmount: payload.finalPaymentAmount, stage: "awaiting response" }, { new: true });
      return null;
 };
 

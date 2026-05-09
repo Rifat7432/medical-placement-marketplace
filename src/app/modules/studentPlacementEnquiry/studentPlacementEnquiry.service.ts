@@ -5,12 +5,35 @@ import { StudentPlacementEnquiry } from './studentPlacementEnquiry.model';
 import AppError from '../../../errors/AppError';
 import { JwtPayload } from 'jsonwebtoken';
 import { Placement } from '../placement/placement.model';
+import { createNotification, notificationMessages } from '../../../helpers/notificationHelper';
+import { User } from '../user/user.model';
+import { Hospital } from '../hospital/hospital.model';
 
 const createStudentPlacementEnquiryToDB = async (studentId: string, payload: Partial<IStudentPlacementEnquiry>): Promise<IStudentPlacementEnquiry> => {
      const studentPlacementEnquiry = await StudentPlacementEnquiry.create({ ...payload, studentId });
      if (!studentPlacementEnquiry) {
           throw new AppError(StatusCodes.BAD_REQUEST, 'Failed to create student placement enquiry');
      }
+
+     // Send notification to student
+     await createNotification({
+          receiver: studentId,
+          title: notificationMessages.STUDENT_ENQUIRY_CREATED.title,
+          message: notificationMessages.STUDENT_ENQUIRY_CREATED.message,
+          type: notificationMessages.STUDENT_ENQUIRY_CREATED.type,
+     });
+
+     // Send notification to admin about new enquiry
+     const admin = await User.findOne({ role: 'admin' });
+     if (admin) {
+          await createNotification({
+               receiver: admin._id.toString(),
+               title: notificationMessages.ADMIN_NEW_ENQUIRY.title,
+               message: notificationMessages.ADMIN_NEW_ENQUIRY.message,
+               type: notificationMessages.ADMIN_NEW_ENQUIRY.type,
+          });
+     }
+
      return studentPlacementEnquiry;
 };
 
@@ -340,6 +363,31 @@ const updateStudentPlacementEnquiry = async (id: string, payload: Partial<IStude
 };
 const updateHospitalStatusPlacementEnquiry = async (id: string, payload: Partial<IStudentPlacementEnquiry>) => {
      const studentPlacementEnquiry = await StudentPlacementEnquiry.findByIdAndUpdate(id, { hospitalStatus: payload.hospitalStatus }, { new: true });
+     
+     if (studentPlacementEnquiry) {
+          // Get placement and hospital details
+          const placement = await Placement.findById(studentPlacementEnquiry.chosenPlacementId);
+          const hospital = placement ? await Hospital.findById(placement.hospitalId) : null;
+          const hospitalUser = hospital ? await User.findById(hospital.userId) : null;
+
+          // Send notification to hospital about student's response
+          if (hospitalUser && payload.hospitalStatus === 'approved') {
+               await createNotification({
+                    receiver: hospitalUser._id.toString(),
+                    title: notificationMessages.HOSPITAL_APPLICATION_APPROVED.title,
+                    message: 'A student has approved your placement offer. Congratulations!',
+                    type: notificationMessages.HOSPITAL_APPLICATION_APPROVED.type,
+               });
+          } else if (hospitalUser && payload.hospitalStatus === 'rejected') {
+               await createNotification({
+                    receiver: hospitalUser._id.toString(),
+                    title: notificationMessages.HOSPITAL_APPLICATION_REJECTED.title,
+                    message: 'A student has declined your placement offer.',
+                    type: notificationMessages.HOSPITAL_APPLICATION_REJECTED.type,
+               });
+          }
+     }
+
      return studentPlacementEnquiry;
 };
 const deleteStudentPlacementEnquiry = async (id: string): Promise<IStudentPlacementEnquiry | null> => {
@@ -348,6 +396,17 @@ const deleteStudentPlacementEnquiry = async (id: string): Promise<IStudentPlacem
 };
 const sendToHospital = async (id: string): Promise<IStudentPlacementEnquiry | null> => {
      const studentPlacementEnquiry = await StudentPlacementEnquiry.findByIdAndUpdate(id, { isVisibleToHospitals: true }, { new: true });
+     
+     if (studentPlacementEnquiry) {
+          // Send confirmation notification to student
+          await createNotification({
+               receiver: studentPlacementEnquiry.studentId,
+               title: 'Enquiry Sent to Hospitals',
+               message: 'Your placement enquiry has been sent to hospitals. Hospitals can now view your profile.',
+               type: 'ALERT',
+          });
+     }
+
      return studentPlacementEnquiry;
 };
 export const StudentPlacementEnquiryService = {
