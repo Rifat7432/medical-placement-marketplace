@@ -172,7 +172,7 @@ const adminOverview = async (year: number) => {
           },
      ]);
 
-     const revenueBarChart = months.map((m, idx) => {
+     const revenueLineChart = months.map((m, idx) => {
           const found = revenue.find((r) => r.monthIndex === idx + 1);
           return {
                month: m.month,
@@ -234,7 +234,7 @@ const adminOverview = async (year: number) => {
           },
      ]);
 
-     const revenueLineChart = data;
+     const revenueChart = data;
 
      const allEnquiries = await StudentPlacementEnquiry.aggregate([
           { $match: { isDeleted: false } },
@@ -305,57 +305,77 @@ const adminOverview = async (year: number) => {
           },
      ]);
 
+
+
+const enquiries = await StudentPlacementEnquiry.aggregate([
+  {
+    $match: {
+      isDeleted: false,
+      createdAt: {
+        $gte: start,
+        $lte: end,
+      },
+    },
+  },
+  {
+    $group: {
+      _id: { $month: "$createdAt" }, // group by month
+      totalEnquiries: { $sum: 1 }, // count enquiries
+    },
+  },
+  {
+    $sort: { _id: 1 },
+  },
+  {
+    $project: {
+      _id: 0,
+      monthIndex: "$_id",
+      month: {
+        $arrayElemAt: [
+          [
+            "",
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec",
+          ],
+          "$_id",
+        ],
+      },
+      totalEnquiries: 1,
+    },
+  },
+]);
+
+const enquiryBarChart = months.map((m, idx) => {
+  const found = enquiries.find((r) => r.monthIndex === idx + 1);
+
+  return {
+    month: m.month,
+    totalEnquiries: found ? found.totalEnquiries : 0,
+  };
+});
      return {
           totalApplications,
           hospitals,
           totalEmptySeats,
           totalRevenue,
           allApplications: allEnquiries,
-          revenueBarChart,
+          revenueBarChart:enquiryBarChart,
           revenueLineChart,
-          growthRate: revenueLineChart.length > 1 ? revenueLineChart[revenueLineChart.length - 1].percentageChange : 0,
+          growthRate: revenueChart.length > 1 ? revenueChart[revenueChart.length - 1].percentageChange : 0,
      };
 };
 
-const getHospitals = async (): Promise<IHospital[]> => {
-     const hospitals = await Hospital.find({ isDeleted: false }).populate('userId', 'email');
-     return hospitals;
-};
 
-const getAllPlacements = async (): Promise<IPlacement[]> => {
-     const placements = await Placement.find({ isDeleted: false }).populate('hospitalId', 'name location');
-     return placements;
-};
-
-const getAllAvailablePlacements = async (): Promise<IPlacement[]> => {
-     const startOfToday = new Date();
-     startOfToday.setHours(0, 0, 0, 0);
-
-     const placements = await Placement.aggregate([
-          { $match: { isDeleted: false, status: 'available' } },
-          {
-               $addFields: {
-                    deadlineDate: {
-                         $dateFromString: {
-                              dateString: '$deadline',
-                              onError: null,
-                              onNull: null,
-                         },
-                    },
-               },
-          },
-          {
-               $match: {
-                    $expr: {
-                         $and: [{ $gt: ['$totalSeats', '$filledSeats'] }, { $ne: ['$deadlineDate', null] }, { $lt: ['$deadlineDate', startOfToday] }],
-                    },
-               },
-          },
-          { $project: { deadlineDate: 0 } },
-     ]);
-
-     return placements as IPlacement[];
-};
 export const AdminService = {
      changeStudentPlacementEnquiryStatus,
      adminOverview,

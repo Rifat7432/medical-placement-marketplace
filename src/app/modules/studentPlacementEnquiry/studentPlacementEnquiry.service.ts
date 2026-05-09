@@ -99,6 +99,10 @@ const getStudentPlacementEnquiriesForHospital = async (hospitalId: string): Prom
           {
                $match: {
                     chosenPlacementId: { $exists: true, $ne: null },
+                    adminStatus: 'approved',
+                    firstPayment: 'paid',
+                    finalPayment: 'paid',
+                    isVisibleToHospitals: true,
                },
           },
 
@@ -282,6 +286,10 @@ const getStudentPlacementEnquiryByIdForHospital = async (hospitalId: string, enq
                $match: {
                     _id: new mongoose.Types.ObjectId(enquiryId),
                     chosenPlacementId: { $exists: true, $ne: null },
+                    adminStatus: 'approved',
+                    firstPayment: 'paid',
+                    finalPayment: 'paid',
+                    isVisibleToHospitals: true,
                },
           },
 
@@ -353,7 +361,22 @@ const chooseStudentPlacementEnquiry = async (id: string, payload: { placementId:
      if (!isPlacementExist) {
           throw new AppError(StatusCodes.NOT_FOUND, 'Placement not found');
      }
-
+     if (isPlacementExist.status !== 'available' && isPlacementExist.totalSeats >= isPlacementExist.filledSeats) {
+          throw new AppError(StatusCodes.BAD_REQUEST, 'Placement is not available');
+     }
+     const isStudentPlacementEnquiryExist = await StudentPlacementEnquiry.findById(id);
+     if (!isStudentPlacementEnquiryExist) {
+          throw new AppError(StatusCodes.NOT_FOUND, 'Student placement enquiry not found');
+     }
+     if (isStudentPlacementEnquiryExist.adminStatus !== 'approved') {
+          throw new AppError(StatusCodes.BAD_REQUEST, 'Cannot choose placement before admin approval');
+     }
+     if (isStudentPlacementEnquiryExist.firstPayment === 'pending') {
+          throw new AppError(StatusCodes.BAD_REQUEST, 'Cannot choose placement before first payment');
+     }
+     if (isStudentPlacementEnquiryExist.finalPayment === 'pending') {
+          throw new AppError(StatusCodes.BAD_REQUEST, 'Cannot choose placement before final payment');
+     }
      const studentPlacementEnquiry = await StudentPlacementEnquiry.findByIdAndUpdate(id, { chosenPlacementId: payload.placementId }, { new: true });
      return studentPlacementEnquiry;
 };
@@ -362,8 +385,24 @@ const updateStudentPlacementEnquiry = async (id: string, payload: Partial<IStude
      return studentPlacementEnquiry;
 };
 const updateHospitalStatusPlacementEnquiry = async (id: string, payload: Partial<IStudentPlacementEnquiry>) => {
+     const isStudentPlacementEnquiryExist = await StudentPlacementEnquiry.findById(id);
+     if (!isStudentPlacementEnquiryExist) {
+          throw new AppError(StatusCodes.NOT_FOUND, 'Student placement enquiry not found');
+     }
+     if (isStudentPlacementEnquiryExist.adminStatus !== 'approved') {
+          throw new AppError(StatusCodes.BAD_REQUEST, 'Cannot update hospital status before admin approval');
+     }
+     if (isStudentPlacementEnquiryExist.firstPayment === 'pending') {
+          throw new AppError(StatusCodes.BAD_REQUEST, 'Cannot update hospital status before first payment');
+     }
+     if (isStudentPlacementEnquiryExist.finalPayment === 'pending') {
+          throw new AppError(StatusCodes.BAD_REQUEST, 'Cannot update hospital status before final payment');
+     }
+     if (!isStudentPlacementEnquiryExist.isVisibleToHospitals) {
+          throw new AppError(StatusCodes.BAD_REQUEST, 'Cannot update hospital status before sending enquiry to hospitals');
+     }
      const studentPlacementEnquiry = await StudentPlacementEnquiry.findByIdAndUpdate(id, { hospitalStatus: payload.hospitalStatus }, { new: true });
-     
+
      if (studentPlacementEnquiry) {
           // Get placement and hospital details
           const placement = await Placement.findById(studentPlacementEnquiry.chosenPlacementId);
@@ -395,8 +434,22 @@ const deleteStudentPlacementEnquiry = async (id: string): Promise<IStudentPlacem
      return studentPlacementEnquiry;
 };
 const sendToHospital = async (id: string): Promise<IStudentPlacementEnquiry | null> => {
+     const isStudentPlacementEnquiryExist = await StudentPlacementEnquiry.findById(id);
+     if (!isStudentPlacementEnquiryExist) {
+          throw new AppError(StatusCodes.NOT_FOUND, 'Student placement enquiry not found');
+     }
+     if (isStudentPlacementEnquiryExist.adminStatus !== 'approved') {
+          throw new AppError(StatusCodes.BAD_REQUEST, 'Cannot send enquiry to hospitals before admin approval');
+     }
+     if (isStudentPlacementEnquiryExist.firstPayment === 'pending') {
+          throw new AppError(StatusCodes.BAD_REQUEST, 'Cannot send enquiry to hospitals before first payment');
+     }
+     if (isStudentPlacementEnquiryExist.finalPayment === 'pending') {
+          throw new AppError(StatusCodes.BAD_REQUEST, 'Cannot send enquiry to hospitals before final payment');
+     }
+
      const studentPlacementEnquiry = await StudentPlacementEnquiry.findByIdAndUpdate(id, { isVisibleToHospitals: true }, { new: true });
-     
+
      if (studentPlacementEnquiry) {
           // Send confirmation notification to student
           await createNotification({

@@ -17,13 +17,19 @@ import { createToken } from '../../../utils/createToken';
 //login
 const loginUserFromDB = async (payload: ILoginData) => {
      const { email, password } = payload;
-console.log(email,password)
+
      if (!password) {
           throw new AppError(StatusCodes.BAD_REQUEST, 'Password is required!');
      }
      const isExistUser = await User.findOne({ email }).select('+password');
      if (!isExistUser) {
           throw new AppError(StatusCodes.BAD_REQUEST, "User doesn't exist!");
+     }
+     if (isExistUser.isDeleted) {
+          throw new AppError(StatusCodes.BAD_REQUEST, 'User account has been deleted!');
+     }
+     if (isExistUser.authProvider !== 'local') {
+          throw new AppError(StatusCodes.BAD_REQUEST, `Please login with other method!`);
      }
      //check verified and status
      if (!isExistUser.verified) {
@@ -63,7 +69,9 @@ const forgetPasswordToDB = async (email: string) => {
      if (!isExistUser) {
           throw new AppError(StatusCodes.BAD_REQUEST, "User doesn't exist!");
      }
-
+     if (isExistUser.authProvider !== 'local') {
+          throw new AppError(StatusCodes.BAD_REQUEST, `Please login with other method!`);
+     }
      //send mail
      const otp = generateOTP(4);
      const value = { otp, email: isExistUser.email };
@@ -83,6 +91,10 @@ const resendOtpFromDb = async (email: string) => {
           throw new AppError(StatusCodes.BAD_REQUEST, "User doesn't exist!");
      }
 
+     if (isExistUser.authProvider !== 'local') {
+          throw new AppError(StatusCodes.BAD_REQUEST, `Please login with other method!`);
+     }
+
      // send email
      const otp = generateOTP(4);
      const values = { name: isExistUser.name, otp: otp, email: isExistUser.email! };
@@ -100,6 +112,10 @@ const forgetPasswordByUrlToDB = async (email: string) => {
      const isExistUser = await User.isExistUserByEmail(email);
      if (!isExistUser || !isExistUser._id) {
           throw new AppError(StatusCodes.BAD_REQUEST, "User doesn't exist!");
+     }
+
+     if (isExistUser.authProvider !== 'local') {
+          throw new AppError(StatusCodes.BAD_REQUEST, `Please login with other method!`);
      }
 
      // Check if the user is blocked
@@ -175,10 +191,13 @@ const resetPasswordToDB = async (token: string, payload: IAuthResetPassword) => 
 
      //user permission check
      const isExistUser = await User.findById(isExistToken.user);
+
      if (!isExistUser?.isResetPassword) {
           throw new AppError(StatusCodes.UNAUTHORIZED, "You don't have permission to change the password. Please click again to 'Forgot Password'");
      }
-
+     if (isExistUser.authProvider !== 'local') {
+          throw new AppError(StatusCodes.BAD_REQUEST, `Please login with other method!`);
+     }
      //validity check
      const isValid = await ResetToken.isExpireToken(token);
      if (!isValid) {
@@ -232,7 +251,9 @@ const changePasswordToDB = async (user: JwtPayload, payload: IChangePassword) =>
      if (!isExistUser) {
           throw new AppError(StatusCodes.BAD_REQUEST, "User doesn't exist!");
      }
-
+     if (isExistUser.authProvider !== 'local') {
+          throw new AppError(StatusCodes.BAD_REQUEST, `Please login with other method!`);
+     }
      //current password match
      if (currentPassword && !(await User.isMatchPassword(currentPassword, isExistUser.password!))) {
           throw new AppError(StatusCodes.BAD_REQUEST, 'Password is incorrect');
