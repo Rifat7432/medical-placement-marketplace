@@ -8,6 +8,7 @@ const enquirySchema = new Schema<IEnquiry, EnquiryModel>(
     lastName: { type: String, required: true },
     phoneNumber: { type: String, required: true },
     message: { type: String, required: true },
+    isDeleted: { type: Boolean, default: false },
   },
   { timestamps: true },
 );

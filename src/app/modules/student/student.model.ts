@@ -12,6 +12,7 @@ const studentSchema = new Schema<IStudent, StudentModel>(
     preferredCities: { type: String },
     languages: { type: String },
     profileImage: { type: String },
+    isDeleted: { type: Boolean, default: false },
   },
   { timestamps: true },
 );

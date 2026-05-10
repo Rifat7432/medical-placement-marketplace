@@ -32,7 +32,7 @@ const updateHospital = async (id: string, payload: Partial<IHospital>): Promise<
 };
 
 const deleteHospital = async (id: string): Promise<IHospital | null> => {
-     const hospital = await Hospital.findByIdAndDelete(id);
+     const hospital = await Hospital.findByIdAndUpdate(id, { isDeleted: true }, { new: true });
      return hospital;
 };
 const hospitalOverview = async (id: string) => {

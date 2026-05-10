@@ -15,6 +15,10 @@ const resetTokenSchema = new Schema<IResetToken, ResetTokenModel>(
                type: Date,
                required: true,
           },
+          isDeleted: {
+               type: Boolean,
+               default: false,
+          },
      },
      { timestamps: true },
 );
@@ -33,5 +37,21 @@ resetTokenSchema.statics.isExpireToken = async (token: string) => {
      });
      return !!resetToken;
 };
+
+// Query Middleware
+resetTokenSchema.pre('find', function (next) {
+     this.find({ isDeleted: { $ne: true } });
+     next();
+});
+
+resetTokenSchema.pre('findOne', function (next) {
+     this.find({ isDeleted: { $ne: true } });
+     next();
+});
+
+resetTokenSchema.pre('aggregate', function (next) {
+     this.pipeline().unshift({ $match: { isDeleted: { $ne: true } } });
+     next();
+});
 
 export const ResetToken = model<IResetToken, ResetTokenModel>('Token', resetTokenSchema);

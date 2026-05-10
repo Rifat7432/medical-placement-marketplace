@@ -14,6 +14,7 @@ export interface IPlacementsEnquiry extends Document {
   language: string;
   documents: string[];
   additionalInformation?: string;
+  isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

@@ -7,6 +7,7 @@ const conversationSchema = new Schema<IConversation, ConversationModel>(
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     lastMessage: { type: Schema.Types.ObjectId, ref: 'Message' },
     isActive: { type: Boolean, default: true },
+    isDeleted: { type: Boolean, default: false },
   },
   { timestamps: true },
 );

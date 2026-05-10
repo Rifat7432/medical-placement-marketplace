@@ -19,6 +19,8 @@ export type IPayment = {
 
      status: PaymentStatus;
 
+     isDeleted: boolean;
+
      createdAt?: Date;
      updatedAt?: Date;
 };

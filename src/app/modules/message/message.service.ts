@@ -73,7 +73,7 @@ const updateMessage = async (id: string, payload: Partial<IMessage>): Promise<IM
 };
 
 const deleteMessage = async (id: string): Promise<IMessage | null> => {
-  const message = await Message.findByIdAndDelete(id);
+  const message = await Message.findByIdAndUpdate(id, { isDeleted: true }, { new: true });
   return message;
 };
 

@@ -5,6 +5,7 @@ export interface IConversation extends Document {
   createdBy: mongoose.Types.ObjectId;
   lastMessage?: mongoose.Types.ObjectId;
   isActive: boolean;
+  isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

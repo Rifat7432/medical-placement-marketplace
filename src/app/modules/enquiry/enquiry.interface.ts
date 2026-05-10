@@ -6,6 +6,7 @@ export interface IEnquiry extends Document {
   lastName: string;
   phoneNumber: string;
   message: string;
+  isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

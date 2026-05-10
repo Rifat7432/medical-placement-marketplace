@@ -10,6 +10,7 @@ export interface IStudent extends Document {
   preferredCities?: string;
   languages?: string;
   profileImage?: string;
+  isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

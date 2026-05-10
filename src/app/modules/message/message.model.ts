@@ -12,6 +12,7 @@ const messageSchema = new Schema<IMessage, MessageModel>(
       type: { type: String }
     }],
     isRead: { type: Boolean, default: false },
+    isDeleted: { type: Boolean, default: false },
   },
   { timestamps: true },
 );

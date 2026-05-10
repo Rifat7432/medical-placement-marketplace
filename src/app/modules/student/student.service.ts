@@ -40,7 +40,7 @@ const updateStudent = async (id: string, payload: Partial<IStudent>): Promise<IS
 };
 
 const deleteStudent = async (id: string): Promise<IStudent | null> => {
-     const student = await Student.findByIdAndDelete(id);
+     const student = await Student.findByIdAndUpdate(id, { isDeleted: true }, { new: true });
      return student;
 };
 

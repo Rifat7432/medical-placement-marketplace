@@ -39,6 +39,10 @@ const notificationSchema = new Schema<INotification>(
                enum: Object.values(NotificationType),
                required: true,
           },
+          isDeleted: {
+               type: Boolean,
+               default: false,
+          },
      },
      {
           timestamps: true,
@@ -61,6 +65,22 @@ notificationSchema.post('save', async function (doc) {
      } catch (error) {
           logger.error(colors.red('Failed to send socket notification'), error);
      }
+});
+
+// Query Middleware
+notificationSchema.pre('find', function (next) {
+     this.find({ isDeleted: { $ne: true } });
+     next();
+});
+
+notificationSchema.pre('findOne', function (next) {
+     this.find({ isDeleted: { $ne: true } });
+     next();
+});
+
+notificationSchema.pre('aggregate', function (next) {
+     this.pipeline().unshift({ $match: { isDeleted: { $ne: true } } });
+     next();
 });
 
 export const Notification = model<INotification>('Notification', notificationSchema);

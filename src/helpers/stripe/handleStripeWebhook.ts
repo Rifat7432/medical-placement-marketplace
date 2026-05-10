@@ -27,7 +27,7 @@ export const webhook = async (req: Request, res: Response): Promise<void> => {
      // Payment success
      if (event.type === 'payment_intent.succeeded') {
           const paymentInfo = await Payment.findOneAndUpdate(
-               { paymentIntentId: data.id },
+               { paymentIntentId: data.id, isDeleted: false },
                {
                     status: 'succeeded',
                     stripeCustomerId: data.customer as string,
@@ -46,13 +46,13 @@ export const webhook = async (req: Request, res: Response): Promise<void> => {
                          firstPaymentId: paymentInfo._id,
                          stage: 'matching required',
                          studentStatus: 'matching',
-                    });
+                    }, { new: true });
                } else if (enquiry?.finalPayment === 'pending' && enquiry.firstPayment === 'paid') {
                     await StudentPlacementEnquiry.findByIdAndUpdate(paymentInfo.enquiryId, {
                          finalPayment: 'paid',
                          finalPaymentId: paymentInfo._id,
                          stage: 'completed',
-                    });
+                    }, { new: true });
                }
 
                // Send payment success notification to student

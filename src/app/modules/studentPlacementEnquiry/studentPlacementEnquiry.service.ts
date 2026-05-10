@@ -430,7 +430,7 @@ const updateHospitalStatusPlacementEnquiry = async (id: string, payload: Partial
      return studentPlacementEnquiry;
 };
 const deleteStudentPlacementEnquiry = async (id: string): Promise<IStudentPlacementEnquiry | null> => {
-     const studentPlacementEnquiry = await StudentPlacementEnquiry.findByIdAndDelete(id);
+     const studentPlacementEnquiry = await StudentPlacementEnquiry.findByIdAndUpdate(id, { isDeleted: true }, { new: true });
      return studentPlacementEnquiry;
 };
 const sendToHospital = async (id: string): Promise<IStudentPlacementEnquiry | null> => {

@@ -4,6 +4,7 @@ export type IResetToken = {
      user: Types.ObjectId;
      token: string;
      expireAt: Date;
+     isDeleted: boolean;
 };
 
 export type ResetTokenModel = {

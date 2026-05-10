@@ -7,6 +7,7 @@ export interface IMessage extends Document {
   content: string;
   attachments: { url: string; type: string }[];
   isRead: boolean;
+  isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

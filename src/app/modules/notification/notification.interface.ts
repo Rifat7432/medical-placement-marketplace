@@ -7,6 +7,7 @@ export interface INotification {
   receiver: Types.ObjectId; // Linked User
   read: boolean;          // Read/unread flag
   type: 'ADMIN' | 'SYSTEM' | 'PAYMENT' | 'ALERT' | 'APPOINTMENT' | 'CANCELLED'; // Notification type
+  isDeleted: boolean;     // Soft delete flag
   createdAt?: Date;       // Auto-added by timestamps
   updatedAt?: Date;       // Auto-added by timestamps
 }

@@ -71,7 +71,7 @@ const createStudentToDB = async (payload: Partial<IUser & IStudent>) => {
           otp: otp,
           email: createUser.email!,
      };
-     await User.findOneAndUpdate({ _id: createUser._id }, { $set: { oneTimeCode: otp, OTPExpireAt: new Date(Date.now() + 5 * 60000) } });
+     await User.findOneAndUpdate({ _id: createUser._id, isDeleted: false }, { $set: { oneTimeCode: otp, OTPExpireAt: new Date(Date.now() + 5 * 60000) } });
 
      const createAccountTemplate = emailTemplate.createAccount(values);
      await emailHelper.sendEmail(createAccountTemplate);
@@ -206,7 +206,7 @@ const handleGoogleAuthentication = async (payload: { email: string; googleId: st
                otp,
                email: newUser.email,
           };
-          await User.findOneAndUpdate({ _id: newUser._id }, { $set: { oneTimeCode: otp, OTPExpireAt: new Date(Date.now() + 5 * 60000) } });
+          await User.findOneAndUpdate({ _id: newUser._id, isDeleted: false }, { $set: { oneTimeCode: otp, OTPExpireAt: new Date(Date.now() + 5 * 60000) } });
           // if (config.node_env === 'production') {
           const createAccountTemplate = emailTemplate.createAccount(values);
           await emailHelper.sendEmail(createAccountTemplate);
@@ -228,7 +228,7 @@ const handleGoogleAuthentication = async (payload: { email: string; googleId: st
                await emailHelper.sendEmail(forgetPassword);
 
                //save to DB
-               await User.findOneAndUpdate({ email }, { $set: { oneTimeCode: otp, OTPExpireAt: new Date(Date.now() + 15 * 60000) } });
+               await User.findOneAndUpdate({ email, isDeleted: false }, { $set: { oneTimeCode: otp, OTPExpireAt: new Date(Date.now() + 15 * 60000) } });
                return { message: 'Account created successfully, please verify via OTP', value };
                throw new AppError(StatusCodes.CONFLICT, 'Please verify your account, then try to login again');
           }
@@ -278,7 +278,7 @@ const updateProfileToDB = async (user: JwtPayload, payload: Partial<IUser>): Pro
      }
 
      const updateDoc = await User.findOneAndUpdate(
-          { _id: id },
+          { _id: id, isDeleted: false },
           { ...payload },
           {
                new: true,
@@ -307,7 +307,7 @@ const blockUserToDB = async (id: string) => {
      }
      await User.findByIdAndUpdate(id, {
           $set: { status: 'blocked' },
-     });
+     }, { new: true });
 
      return true;
 };
@@ -321,7 +321,7 @@ const deleteUser = async (id: string) => {
      }
      await User.findByIdAndUpdate(id, {
           $set: { isDeleted: true },
-     });
+     }, { new: true });
 
      return true;
 };

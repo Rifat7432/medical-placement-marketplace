@@ -40,7 +40,7 @@ const loginUserFromDB = async (payload: ILoginData) => {
           emailHelper.sendEmail(forgetPassword);
 
           //save to DB
-          await User.findOneAndUpdate({ email }, { $set: { oneTimeCode: otp, OTPExpireAt: new Date(Date.now() + 10 * 60000) } });
+          await User.findOneAndUpdate({ email, isDeleted: false }, { $set: { oneTimeCode: otp, OTPExpireAt: new Date(Date.now() + 10 * 60000) } });
           return { otp, email: isExistUser.email, message: 'Please verify your account, check your email we send a code' };
           throw new AppError(StatusCodes.CONFLICT, 'Please verify your account, then try to login again');
      }

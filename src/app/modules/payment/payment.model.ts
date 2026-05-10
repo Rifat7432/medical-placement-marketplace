@@ -44,8 +44,29 @@ const paymentSchema = new Schema(
                enum: ['pending', 'succeeded', 'failed'],
                default: 'pending',
           },
+
+          isDeleted: {
+               type: Boolean,
+               default: false,
+          },
      },
      { timestamps: true },
 );
+
+// Query Middleware
+paymentSchema.pre('find', function (next) {
+     this.find({ isDeleted: { $ne: true } });
+     next();
+});
+
+paymentSchema.pre('findOne', function (next) {
+     this.find({ isDeleted: { $ne: true } });
+     next();
+});
+
+paymentSchema.pre('aggregate', function (next) {
+     this.pipeline().unshift({ $match: { isDeleted: { $ne: true } } });
+     next();
+});
 
 export const Payment = model('Payment', paymentSchema);

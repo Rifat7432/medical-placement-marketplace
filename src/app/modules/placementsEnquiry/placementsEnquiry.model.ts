@@ -16,6 +16,7 @@ const placementsEnquirySchema = new Schema<IPlacementsEnquiry, PlacementsEnquiry
     language: { type: String, required: true },
     documents: [{ type: String }],
     additionalInformation: { type: String },
+    isDeleted: { type: Boolean, default: false },
   },
   { timestamps: true },
 );
