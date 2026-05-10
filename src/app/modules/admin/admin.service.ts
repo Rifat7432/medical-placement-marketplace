@@ -45,24 +45,6 @@ const changeStudentPlacementEnquiryStatus = async (id: string, payload: Partial<
           return updatedEnquiry;
      }
 };
-const changeStudentPlacementEnquiryStage = async (id: string) => {
-     const studentPlacementEnquiry = await StudentPlacementEnquiry.findById(id);
-     if (!studentPlacementEnquiry || studentPlacementEnquiry.isDeleted) {
-          throw new AppError(StatusCodes.NOT_FOUND, 'Student placement enquiry not found');
-     }
-
-     const updatedEnquiry = await StudentPlacementEnquiry.findByIdAndUpdate(id, { stage: 'matching required', studentStatus: 'matching' }, { new: true });
-     
-     // Send matching started notification to student
-     await createNotification({
-          receiver: studentPlacementEnquiry.studentId,
-          title: notificationMessages.STUDENT_MATCHING_STARTED.title,
-          message: notificationMessages.STUDENT_MATCHING_STARTED.message,
-          type: notificationMessages.STUDENT_MATCHING_STARTED.type,
-     });
-
-     return updatedEnquiry;
-};
 const matchPlacement = async (enquiryId: string, payload: { placementIds: string[]; finalPaymentAmount: number }) => {
      const studentPlacementEnquiry = await StudentPlacementEnquiry.findById(enquiryId);
      if (!studentPlacementEnquiry || studentPlacementEnquiry.isDeleted) {
@@ -379,6 +361,5 @@ const enquiryBarChart = months.map((m, idx) => {
 export const AdminService = {
      changeStudentPlacementEnquiryStatus,
      adminOverview,
-     changeStudentPlacementEnquiryStage,
      matchPlacement,
 };

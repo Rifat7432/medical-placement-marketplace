@@ -14,14 +14,10 @@ const matchPlacement = catchAsync(async (req, res) => {
 
      sendResponse(res, { success: true, statusCode: StatusCodes.OK, message: 'Placement matched successfully', data: result });
 });
-const changeStudentPlacementEnquiryStage = catchAsync(async (req, res) => {
-     const result = await AdminService.changeStudentPlacementEnquiryStage(req.params.id);
 
-     sendResponse(res, { success: true, statusCode: StatusCodes.OK, message: 'Placement enquiry stage has been successfully changed', data: result });
-});
 const adminOverview = catchAsync(async (req, res) => {
      const result = await AdminService.adminOverview(req.query.year as unknown as number);
 
      sendResponse(res, { success: true, statusCode: StatusCodes.OK, message: 'Admin overview retrieved successfully', data: result });
 });
-export const AdminController = { changeStudentPlacementEnquiryStatus, adminOverview, changeStudentPlacementEnquiryStage, matchPlacement };
+export const AdminController = { changeStudentPlacementEnquiryStatus, adminOverview, matchPlacement };
