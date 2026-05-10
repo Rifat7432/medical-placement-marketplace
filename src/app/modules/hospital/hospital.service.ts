@@ -5,6 +5,8 @@ import AppError from '../../../errors/AppError';
 import { Placement } from '../placement/placement.model';
 import mongoose from 'mongoose';
 import { User } from '../user/user.model';
+import { NotificationService } from '../notification/notification.service';
+import { Notification } from '../notification/notification.model';
 
 const getHospitals = async (): Promise<IHospital[]> => {
      const hospitals = await Hospital.find({ isDeleted: false }).populate('userId', 'email');
@@ -118,13 +120,14 @@ const hospitalOverview = async (id: string) => {
      })
           .sort({ createdAt: -1 })
           .limit(3);
-
+ const result = await Notification.find({ receiver: id }).sort({ createdAt: -1 });
      return {
           activePlacements,
           totalApplications: applicationCounts.length > 0 ? applicationCounts[0].totalApplications : 0,
           approvedApplications: applicationCounts.length > 0 ? applicationCounts[0].approvedApplications : 0,
           pendingApplications: applicationCounts.length > 0 ? applicationCounts[0].pendingApplications : 0,
           recentPlacements,
+          notifications: result,
      };
 };
 export const HospitalService = {
