@@ -42,7 +42,6 @@ export const sendEmailForAdmin = async (values: ISendEmail) => {
                subject: values.subject,
                html: values.html,
           });
-console.log(data)
           logger.info(colors.green(`✅ [Medical Placement Marketplace] Admin email sent: ${data.id}`));
      } catch (error) {
           errorLogger.error(colors.red('[Medical Placement Marketplace] Admin Email Error:'), error);

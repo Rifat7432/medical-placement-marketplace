@@ -76,7 +76,6 @@ const createStudentToDB = async (payload: Partial<IUser & IStudent>) => {
      const createAccountTemplate = emailTemplate.createAccount(values);
      await emailHelper.sendEmail(createAccountTemplate);
 
-     return values;
 };
 
 // Create admin user
@@ -140,8 +139,6 @@ const createHospitalToDB = async (payload: Partial<IUser & IHospital>) => {
      };
      const createAccountTemplate = emailTemplate.hospitalCredentialsTemplate(values);
      await emailHelper.sendEmail(createAccountTemplate);
-
-     return values;
 };
 
 const handleGoogleAuthentication = async (payload: { email: string; googleId: string; name: string; email_verified: boolean; picture?: string }): Promise<any> => {
@@ -161,7 +158,7 @@ const handleGoogleAuthentication = async (payload: { email: string; googleId: st
           const newUser = await User.create({
                email,
                socialId: googleId,
-               verified: email_verified,
+               verified: true,
                password: googleId,
                authProvider: 'google',
                role: USER_ROLES.STUDENT, // Only students can use social login
@@ -216,10 +213,7 @@ const handleGoogleAuthentication = async (payload: { email: string; googleId: st
           await emailHelper.sendEmail(createAccountTemplate);
 
           // Save OTP for later verification
-
-          //      return { message: 'Account created successfully, please verify via OTP' };
-          // }
-          return { message: 'Account created successfully, please verify via OTP', values };
+          return { message: 'Account created successfully, please verify via OTP' };
      }
      // If user exists, perform login
      if (existingUser) {

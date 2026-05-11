@@ -58,7 +58,6 @@ notificationSchema.post('save', async function (doc) {
                return;
           }
           const notification = doc.toObject();
-          console.log(notification.title)
           const receiverId = notification.receiver.toString();
           logger.info(colors.green(`Sending notification to user ${receiverId}`));
           socketIo.to(receiverId).emit('notification', notification);

@@ -7,7 +7,6 @@ import { Notification } from '../notification/notification.model';
 
 
 const getStudentDashboard = async (id: string) => {
-     console.log(id)
      const placements = await StudentPlacementEnquiry.find({ studentId: id });
       const result = await Notification.find({ receiver: id }).sort({ createdAt: -1 });
      return {

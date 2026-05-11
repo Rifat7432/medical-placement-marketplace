@@ -14,18 +14,12 @@ const verifyEmail = catchAsync(async (req, res) => {
 const loginUser = catchAsync(async (req, res) => {
      const { ...loginData } = req.body;
      const result = await AuthService.loginUserFromDB(loginData);
-
-
-
-     if (!result.otp) {
-          return sendResponse(res, {
-               success: true,
-               statusCode: StatusCodes.OK,
-               message: 'User logged in successfully.',
-               data: { accessToken: result.accessToken, refreshToken: result.refreshToken },
-          });
-     }
-     sendResponse(res, { success: true, statusCode: StatusCodes.OK, message: result.message, data: { otp: result.otp, email: result.email } });
+     return sendResponse(res, {
+          success: true,
+          statusCode: StatusCodes.OK,
+          message: 'User logged in successfully.',
+          data: { accessToken: result.accessToken, refreshToken: result.refreshToken },
+     });
 });
 
 const forgetPassword = catchAsync(async (req, res) => {
@@ -69,9 +63,9 @@ const changePassword = catchAsync(async (req, res) => {
 // resend Otp
 const resendOtp = catchAsync(async (req, res) => {
      const { email } = req.body;
-    const result = await AuthService.resendOtpFromDb(email);
+     const result = await AuthService.resendOtpFromDb(email);
 
-     sendResponse(res, { success: true, statusCode: StatusCodes.OK, message: 'OTP sent successfully again',data: result });
+     sendResponse(res, { success: true, statusCode: StatusCodes.OK, message: 'OTP sent successfully again', data: result });
 });
 
 // refresh token
