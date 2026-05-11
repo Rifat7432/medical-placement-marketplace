@@ -18,7 +18,7 @@ const createEnquiryToDB = async (payload: Partial<IEnquiry>): Promise<IEnquiry> 
           message: enquiry.message,
      };
      const enquiryTemplate = emailTemplate.sendEnquiryToAdmin(values);
-     await emailHelper.sendEmailForAdmin(enquiryTemplate);
+     await emailHelper.sendEmailForSupport(enquiryTemplate);
      return enquiry;
 };
 

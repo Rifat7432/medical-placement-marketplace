@@ -26,7 +26,7 @@ const createPlacementsEnquiryToDB = async (payload: Partial<IPlacementsEnquiry>)
           additionalInformation: placementsEnquiry.additionalInformation,
      };
      const enquiryTemplate = emailTemplate.sendPlacementsEnquiryToAdmin(values);
-     await emailHelper.sendEmailForAdmin(enquiryTemplate);
+     await emailHelper.sendEmailForSupport(enquiryTemplate);
      return placementsEnquiry;
 };
 

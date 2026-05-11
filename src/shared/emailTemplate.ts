@@ -6,11 +6,11 @@ const createAccount = (values: ICreateAccount) => {
           subject: 'Verify your account',
           html: `<body style="font-family: Arial, sans-serif; background-color: #f9f9f9; margin: 50px; padding: 20px; color: #555;">
     <div style="width: 100%; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #fff; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); text-align: center;">
-        <img src="https://i.postimg.cc/6pgNvKhD/logo.png" alt="Logo" style="display: block; margin: 0 auto 20px; width:150px" />
-         <h2 style="color: #277E16; font-size: 24px; margin-bottom: 20px;">Hey! ${values.name ? values.name : 'There'}, Your Account Credentials</h2>
+        <img src="https://medical-placement.s3.eu-west-2.amazonaws.com/logo.png" alt="Logo" style="display: block; margin: 0 auto 20px; width:150px" />
+         <h2 style="color: #2ABFBF; font-size: 24px; margin-bottom: 20px;">Hey! ${values.name ? values.name : 'There'}, Your Account Credentials</h2>
         <div style="text-align: center;">
             <p style="color: #555; font-size: 16px; line-height: 1.5; margin-bottom: 20px;">Your single use code is:</p>
-            <div style="background-color: #277E16; width: 120px; padding: 10px; text-align: center; border-radius: 8px; color: #fff; font-size: 25px; letter-spacing: 2px; margin: 20px auto;">${values.otp}</div>
+            <div style="background-color: #2ABFBF; width: 120px; padding: 10px; text-align: center; border-radius: 8px; color: #fff; font-size: 25px; letter-spacing: 2px; margin: 20px auto;">${values.otp}</div>
             <p style="color: #555; font-size: 16px; line-height: 1.5; margin-bottom: 20px;">This code is valid for 3 minutes.</p>
         </div>
     </div>
@@ -25,7 +25,7 @@ const contact = (values: IContact) => {
           html: `<body style="font-family: Arial, sans-serif; background-color: #f9f9f9; margin: 50px; padding: 20px; color: #555;">      
       <div style="width: 100%; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #fff; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
           <img src="https://res.cloudinary.com/ddhhyc6mr/image/upload/v1742293522/buzzy-box-logo.png" alt="Logo" style="display: block; margin: 0 auto 20px; width:150px" />
-          <h2 style="color: #277E16; font-size: 24px; margin-bottom: 20px; text-align: center;">Thank You for Contacting Us, ${values.name}!</h2>
+          <h2 style="color: #2ABFBF; font-size: 24px; margin-bottom: 20px; text-align: center;">Thank You for Contacting Us, ${values.name}!</h2>
           
           <p style="color: #555; font-size: 16px; line-height: 1.5; text-align: center;">
               We have received your message and our team will get back to you as soon as possible.
@@ -42,7 +42,7 @@ const contact = (values: IContact) => {
 
           <p style="color: #555; font-size: 14px; text-align: center;">
               If your inquiry is urgent, feel free to reach out to us directly at 
-              <a href="mailto:support@yourdomain.com" style="color: #277E16; text-decoration: none;">support@yourdomain.com</a>.
+              <a href="mailto:support@yourdomain.com" style="color: #2ABFBF; text-decoration: none;">support@yourdomain.com</a>.
           </p>
 
           <p style="color: #555; font-size: 14px; text-align: center; margin-top: 20px;">
@@ -60,10 +60,10 @@ const resetPassword = (values: IResetPassword) => {
           subject: 'Reset your password',
           html: `<body style="font-family: Arial, sans-serif; background-color: #f9f9f9; margin: 50px; padding: 20px; color: #555;">
     <div style="width: 100%; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #fff; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
-        <img src="https://i.postimg.cc/6pgNvKhD/logo.png" alt="Logo" style="display: block; margin: 0 auto 20px; width:150px" />
+        <img src="https://medical-placement.s3.eu-west-2.amazonaws.com/logo.png" alt="Logo" style="display: block; margin: 0 auto 20px; width:150px" />
         <div style="text-align: center;">
             <p style="color: #555; font-size: 16px; line-height: 1.5; margin-bottom: 20px;">Your single use code is:</p>
-            <div style="background-color: #277E16; width: 120px; padding: 10px; text-align: center; border-radius: 8px; color: #fff; font-size: 25px; letter-spacing: 2px; margin: 20px auto;">${values.otp}</div>
+            <div style="background-color: #2ABFBF; width: 120px; padding: 10px; text-align: center; border-radius: 8px; color: #fff; font-size: 25px; letter-spacing: 2px; margin: 20px auto;">${values.otp}</div>
             <p style="color: #555; font-size: 16px; line-height: 1.5; margin-bottom: 20px;">This code is valid for 3 minutes.</p>
                 <p style="color: #b9b4b4; font-size: 16px; line-height: 1.5; margin-bottom: 20px;text-align:left">If you didn't request this code, you can safely ignore this email. Someone else might have typed your email address by mistake.</p>
         </div>
@@ -78,11 +78,11 @@ const resetPasswordByUrl = (values: IResetPasswordByEmail) => {
           subject: 'Reset Your Password',
           html: `<body style="font-family: Arial, sans-serif; background-color: #f9f9f9; margin: 50px; padding: 20px; color: #555;">
       <div style="width: 100%; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #fff; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
-        <img src="https://i.postimg.cc/6pgNvKhD/logo.png" alt="Logo" style="display: block; margin: 0 auto 20px; width:150px" />
+        <img src="https://medical-placement.s3.eu-west-2.amazonaws.com/logo.png" alt="Logo" style="display: block; margin: 0 auto 20px; width:150px" />
         <div style="text-align: center;">
           <h2 style="color: #333;">Reset Your Password</h2>
           <p style="color: #555; font-size: 16px; line-height: 1.5;">We received a request to reset your password. Click the button below to reset it:</p>
-          <a href="${values.resetUrl}" target="_blank" style="display: inline-block; background-color: #277E16; color: white; text-decoration: none; padding: 12px 20px; border-radius: 8px; font-size: 18px; margin: 20px auto;">Reset Password</a>
+          <a href="${values.resetUrl}" target="_blank" style="display: inline-block; background-color: #2ABFBF; color: white; text-decoration: none; padding: 12px 20px; border-radius: 8px; font-size: 18px; margin: 20px auto;">Reset Password</a>
           <p style="color: #555; font-size: 16px; line-height: 1.5; margin-top: 20px;">If you didn’t request this, you can ignore this email.</p>
           <p style="color: #b9b4b4; font-size: 14px;">This link will expire in 10 minutes.</p>
         </div>
@@ -98,7 +98,7 @@ const contactFormTemplate = (values: IHelpContact) => {
           subject: 'Thank you for reaching out to us',
           html: `<body style="font-family: Arial, sans-serif; background-color: #f9f9f9; margin: 50px; padding: 20px; color: #555;">
     <div style="width: 100%; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #fff; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
-        <img src="https://i.postimg.cc/6pgNvKhD/logo.png" alt="Logo" style="display: block; margin: 0 auto 20px; width:150px" />
+        <img src="https://medical-placement.s3.eu-west-2.amazonaws.com/logo.png" alt="Logo" style="display: block; margin: 0 auto 20px; width:150px" />
         <div style="text-align: center;">
             <p style="color: #555; font-size: 16px; line-height: 1.5; margin-bottom: 20px;">Hello ${values.name},</p>
             <p style="color: #555; font-size: 16px; line-height: 1.5; margin-bottom: 20px;">Thank you for reaching out to us. We have received your message:</p>
@@ -122,7 +122,7 @@ const sendEnquiryToAdmin = (values: IEnquiryEmail) => {
           html: `<body style="font-family: Arial, sans-serif; background-color: #f9f9f9; margin: 50px; padding: 20px; color: #555;">
       <div style="width: 100%; max-width: 600px; margin: 0 auto; padding: 25px; background-color: #fff; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
         
-        <img src="https://i.postimg.cc/6pgNvKhD/logo.png" alt="Logo" style="display: block; margin: 0 auto 20px; width:150px" />
+        <img src="https://medical-placement.s3.eu-west-2.amazonaws.com/logo.png" alt="Logo" style="display: block; margin: 0 auto 20px; width:150px" />
         
         <h2 style="color: #31ADA7; font-size: 24px; margin-bottom: 20px; text-align:center;">
           New Enquiry Received
@@ -159,7 +159,7 @@ const sendPlacementsEnquiryToAdmin = (values: IPlacementsEnquiryEmail) => {
           html: `<body style="font-family: Arial, sans-serif; background-color: #f9f9f9; margin: 50px; padding: 20px; color: #555;">
       <div style="width: 100%; max-width: 650px; margin: 0 auto; padding: 25px; background-color: #fff; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
 
-        <img src="https://i.postimg.cc/6pgNvKhD/logo.png" alt="Logo" style="display: block; margin: 0 auto 20px; width:150px" />
+        <img src="https://medical-placement.s3.eu-west-2.amazonaws.com/logo.png" alt="Logo" style="display: block; margin: 0 auto 20px; width:150px" />
 
         <h2 style="color: #31ADA7; font-size: 24px; margin-bottom: 20px; text-align:center;">
           New Placement Enquiry
@@ -224,7 +224,7 @@ const hospitalCredentialsTemplate = (values: IHospitalCredentials) => {
           html: `<body style="font-family: Arial, sans-serif; background-color: #f9f9f9; margin: 50px; padding: 20px; color: #555;">
     <div style="width: 100%; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #fff; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
         
-        <img src="https://i.postimg.cc/6pgNvKhD/logo.png" alt="Logo" style="display: block; margin: 0 auto 20px; width:150px" />
+        <img src="https://medical-placement.s3.eu-west-2.amazonaws.com/logo.png" alt="Logo" style="display: block; margin: 0 auto 20px; width:150px" />
         
         <div style="text-align: center;">
             <p style="font-size: 18px; margin-bottom: 10px;"><strong>Welcome to Our Platform</strong></p>

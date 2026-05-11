@@ -37,8 +37,7 @@ export const sendEmailForAdmin = async (values: ISendEmail) => {
      try {
           const data = await mg.messages.create(DOMAIN, {
                from: `"${values.to}" <${values.to}>`,
-               // to: [config.email.user],
-               to: ['md.rifat.taluckdar@gmail.com'],
+               to: [config.email.user],
                subject: values.subject,
                html: values.html,
           });
@@ -47,8 +46,22 @@ export const sendEmailForAdmin = async (values: ISendEmail) => {
           errorLogger.error(colors.red('[Medical Placement Marketplace] Admin Email Error:'), error);
      }
 };
+export const sendEmailForSupport = async (values: ISendEmail) => {
+     try {
+          const data = await mg.messages.create(DOMAIN, {
+               from: `"${values.to}" <${values.to}>`,
+               to: [config.email.supportUser],
+               subject: values.subject,
+               html: values.html,
+          });
+          logger.info(colors.green(`✅ [Medical Placement Marketplace] Support email sent: ${data.id}`));
+     } catch (error) {
+          errorLogger.error(colors.red('[Medical Placement Marketplace] Support Email Error:'), error);
+     }
+};
 
 export const emailHelper = {
      sendEmail,
      sendEmailForAdmin,
+     sendEmailForSupport
 };

@@ -30,6 +30,7 @@ export default {
           emailHeader: process.env.EMAIL_HEADER_NAME || 'Medical Placement Marketplace',
           from: process.env.EMAIL_FROM || '',
           user: process.env.EMAIL_USER || '',
+          supportUser: process.env.SUPPORT_EMAIL || '',
 
           // Mailgun-specific configuration
           apiKey: process.env.EMAIL_API_KEY || '',
