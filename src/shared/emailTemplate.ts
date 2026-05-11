@@ -246,7 +246,7 @@ const hospitalCredentialsTemplate = (values: IHospitalCredentials) => {
                 For security reasons, we strongly recommend changing your password after your first login.
             </p>
 
-            <a href="#" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #fff; text-decoration: none; border-radius: 5px; margin-bottom: 20px;">
+            <a href="https://hospital.lumieramed.com" target="_blank" style="display: inline-block; padding: 10px 20px; background-color: #31ADA7; color: #fff; text-decoration: none; border-radius: 5px; margin-bottom: 20px;">
                 Login Now
             </a>
 
