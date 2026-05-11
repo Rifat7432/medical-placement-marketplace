@@ -175,6 +175,10 @@ const handleGoogleAuthentication = async (payload: { email: string; googleId: st
 
           const admin = await User.findOne({ role: USER_ROLES.ADMIN });
           if (admin) {
+               await Conversation.create({
+                    participants: [newUser._id, admin._id],
+                    createdBy: admin._id,
+               });
                // Send notification to admin about new student registration
                await createNotification({
                     receiver: admin._id.toString(),
@@ -305,9 +309,13 @@ const blockUserToDB = async (id: string) => {
      if (isExistUser.role === USER_ROLES.ADMIN) {
           throw new AppError(StatusCodes.BAD_REQUEST, "You don't have permission to block this user!");
      }
-     await User.findByIdAndUpdate(id, {
-          $set: { status: 'blocked' },
-     }, { new: true });
+     await User.findByIdAndUpdate(
+          id,
+          {
+               $set: { status: 'blocked' },
+          },
+          { new: true },
+     );
 
      return true;
 };
@@ -319,9 +327,13 @@ const deleteUser = async (id: string) => {
      if (isExistUser.role === USER_ROLES.ADMIN) {
           throw new AppError(StatusCodes.BAD_REQUEST, "You don't have permission to delete this user!");
      }
-     await User.findByIdAndUpdate(id, {
-          $set: { isDeleted: true },
-     }, { new: true });
+     await User.findByIdAndUpdate(
+          id,
+          {
+               $set: { isDeleted: true },
+          },
+          { new: true },
+     );
 
      return true;
 };
