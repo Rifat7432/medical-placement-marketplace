@@ -47,7 +47,7 @@ const createPaymentIntent = async (userId: string, enquiryId: string) => {
           userId,
           enquiryId,
           paymentIntentId: paymentIntent.id,
-          amount: Math.round(amount * 100),
+          amount: Math.round(amount),
      });
 
      return {
