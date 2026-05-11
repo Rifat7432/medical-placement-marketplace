@@ -67,7 +67,7 @@ const createStudentToDB = async (payload: Partial<IUser & IStudent>) => {
      //send email
      const otp = generateOTP(4);
      const values = {
-          name: createUser.email, // Use email as name since name field not in schema
+          name: payload.fullName || payload.email, // Use email as name since name field not in schema
           otp: otp,
           email: createUser.email!,
      };
