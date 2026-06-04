@@ -6,7 +6,7 @@ const enquirySchema = new Schema<IEnquiry, EnquiryModel>(
     email: { type: String, required: true },
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
-    phoneNumber: { type: String, required: true },
+    phoneNumber: { type: String},
     message: { type: String, required: true },
     isDeleted: { type: Boolean, default: false },
   },
