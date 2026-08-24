@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ai-navigation-backend
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./src:/app/src
+    env_file:
+      - .env
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  mongodb:
+    image: mongo:7-alpine
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - app-network
+    restart: unless-stopped
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mongo-data:

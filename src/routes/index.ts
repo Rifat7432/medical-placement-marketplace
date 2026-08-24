@@ -13,6 +13,8 @@ import { MatchingPlacementRouter } from '../app/modules/matching/matchingPlaceme
 import { NotificationRoutes } from '../app/modules/notification/notification.routes';
 import { SubscriptionRoutes } from '../app/modules/payment/payment.routes';
 import { AdminRouter } from '../app/modules/admin/admin.route';
+import { FaqRouter } from '../app/modules/faq/faq.route';
+import { BlogRouter } from '../app/modules/blog/blog.route';
 
 const router = express.Router();
 const routes = [
@@ -63,6 +65,14 @@ const routes = [
      {
           path: '/notifications',
           route: NotificationRoutes,
+     },
+     {
+          path: '/faqs',
+          route: FaqRouter,
+     },
+     {
+          path: '/blogs',
+          route: BlogRouter,
      },
      {
           path: '/payments',
