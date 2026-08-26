@@ -1,6 +1,7 @@
 import { Document, Model } from 'mongoose';
 
 export interface IFaq extends Document {
+  category: string;
   question: string;
   answer: string;
   isDeleted: boolean;

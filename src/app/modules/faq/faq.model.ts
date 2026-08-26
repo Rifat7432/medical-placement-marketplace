@@ -3,6 +3,7 @@ import { IFaq, FaqModel } from './faq.interface';
 
 const faqSchema = new Schema<IFaq, FaqModel>(
   {
+    category: { type: String, required: true },
     question: { type: String, required: true },
     answer: { type: String, required: true },
     isDeleted: { type: Boolean, default: false },
