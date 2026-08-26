@@ -3,6 +3,7 @@ import { IBlog, BlogModel } from './blog.interface';
 
 const blogSchema = new Schema<IBlog, BlogModel>(
   {
+    image: { type: String, required: true },
     title: { type: String, required: true },
     content: { type: String, required: true },
     isDeleted: { type: Boolean, default: false },
