@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { checkValidID } from '../../../shared/checkValidID';
 
 const createFaqZodSchema = z.object({
   body: z.object({
@@ -8,6 +9,23 @@ const createFaqZodSchema = z.object({
   }),
 });
 
+const updateFaqZodSchema = z.object({
+  params: z.object({ id: checkValidID('Invalid FAQ id') }),
+  body: z.object({
+    category: z.string().optional(),
+    question: z.string().optional(),
+    answer: z.string().optional(),
+  }).refine((body) => Object.keys(body).length > 0, {
+    message: 'At least one field is required to update an FAQ',
+  }),
+});
+
+const faqIdZodSchema = z.object({
+  params: z.object({ id: checkValidID('Invalid FAQ id') }),
+});
+
 export const FaqValidation = {
   createFaqZodSchema,
+  updateFaqZodSchema,
+  faqIdZodSchema,
 };

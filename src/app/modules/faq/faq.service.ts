@@ -24,8 +24,34 @@ const getSingleFaqFromDB = async (id: string): Promise<IFaq | null> => {
   return result;
 };
 
+const updateFaqToDB = async (id: string, payload: Partial<IFaq>): Promise<IFaq> => {
+  const faq = await Faq.findOneAndUpdate(
+    { _id: id, isDeleted: { $ne: true } },
+    payload,
+    { new: true, runValidators: true },
+  );
+  if (!faq) {
+    throw new AppError(StatusCodes.NOT_FOUND, 'FAQ not found');
+  }
+  return faq;
+};
+
+const deleteFaqFromDB = async (id: string): Promise<IFaq> => {
+  const faq = await Faq.findOneAndUpdate(
+    { _id: id, isDeleted: { $ne: true } },
+    { isDeleted: true },
+    { new: true },
+  );
+  if (!faq) {
+    throw new AppError(StatusCodes.NOT_FOUND, 'FAQ not found');
+  }
+  return faq;
+};
+
 export const FaqService = {
   createFaqToDB,
   getAllFaqFromDB,
   getSingleFaqFromDB,
+  updateFaqToDB,
+  deleteFaqFromDB,
 };

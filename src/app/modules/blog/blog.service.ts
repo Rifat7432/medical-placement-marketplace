@@ -24,8 +24,33 @@ const getSingleBlogFromDB = async (id: string): Promise<IBlog | null> => {
   return result;
 };
 
+const updateBlogToDB = async (id: string, payload: Partial<IBlog>): Promise<IBlog> => {
+  const blog = await Blog.findOneAndUpdate({ _id: id, isDeleted: { $ne: true } }, payload, {
+    new: true,
+    runValidators: true,
+  });
+  if (!blog) {
+    throw new AppError(StatusCodes.NOT_FOUND, 'Blog not found');
+  }
+  return blog;
+};
+
+const deleteBlogFromDB = async (id: string): Promise<IBlog> => {
+  const blog = await Blog.findOneAndUpdate(
+    { _id: id, isDeleted: { $ne: true } },
+    { isDeleted: true },
+    { new: true },
+  );
+  if (!blog) {
+    throw new AppError(StatusCodes.NOT_FOUND, 'Blog not found');
+  }
+  return blog;
+};
+
 export const BlogService = {
   createBlogToDB,
   getAllBlogFromDB,
   getSingleBlogFromDB,
+  updateBlogToDB,
+  deleteBlogFromDB,
 };

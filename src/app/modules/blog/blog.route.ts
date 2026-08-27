@@ -11,36 +11,54 @@ import AppError from '../../../errors/AppError';
 
 const router = express.Router();
 
-router.post('/', fileUploadHandler(),
-     async (req: Request, res: Response, next: NextFunction) => {
-          try {
-               const uploadedFiles = await uploadMulterFilesToS3(req.files as Record<string, Express.Multer.File[]>);
-
-               let image = null;
-
-               for (const fieldName in uploadedFiles) {
-                    const value = uploadedFiles[fieldName];
-
-                    if (Array.isArray(value)) {
-                         throw new AppError(StatusCodes.BAD_REQUEST, `Multiple files uploaded Profile Image, expected only one.`);
-                    } else {
-                         image = value.url;
-                    }
-               }
-
-               const data = JSON.parse(req.body?.data || '{}');
-
-               req.body = {
-                    ...data,
-                   ...( image && { image })
-               };
-
-               next();
-          } catch (error) {
-               next(error);
+const prepareBlogPayload = async (req: Request, _res: Response, next: NextFunction) => {
+     try {
+          const imageFiles = (req.files as Record<string, Express.Multer.File[]> | undefined)?.image;
+          if (imageFiles && imageFiles.length > 1) {
+               throw new AppError(StatusCodes.BAD_REQUEST, 'Only one blog image can be uploaded.');
           }
-     }, auth(USER_ROLES.ADMIN), validateRequest(BlogValidation.createBlogZodSchema), BlogController.createBlog);
+
+          const uploadedFiles = await uploadMulterFilesToS3(req.files as Record<string, Express.Multer.File[]>);
+          const uploadedImage = uploadedFiles.image;
+
+          if (Array.isArray(uploadedImage)) {
+               throw new AppError(StatusCodes.BAD_REQUEST, 'Only one blog image can be uploaded.');
+          }
+
+          const data = typeof req.body?.data === 'string' ? JSON.parse(req.body.data) : req.body;
+          req.body = {
+               ...data,
+               ...(uploadedImage && { image: uploadedImage.url }),
+          };
+          next();
+     } catch (error) {
+          next(error);
+     }
+};
+
+router.post(
+     '/',
+     auth(USER_ROLES.ADMIN),
+     fileUploadHandler(),
+     prepareBlogPayload,
+     validateRequest(BlogValidation.createBlogZodSchema),
+     BlogController.createBlog,
+);
 router.get('/', BlogController.getBlogs);
-router.get('/:id', BlogController.getSingleBlog);
+router.get('/:id', validateRequest(BlogValidation.blogIdZodSchema), BlogController.getSingleBlog);
+router.patch(
+     '/:id',
+     auth(USER_ROLES.ADMIN),
+     fileUploadHandler(),
+     prepareBlogPayload,
+     validateRequest(BlogValidation.updateBlogZodSchema),
+     BlogController.updateBlog,
+);
+router.delete(
+     '/:id',
+     auth(USER_ROLES.ADMIN),
+     validateRequest(BlogValidation.blogIdZodSchema),
+     BlogController.deleteBlog,
+);
 
 export const BlogRouter = router;

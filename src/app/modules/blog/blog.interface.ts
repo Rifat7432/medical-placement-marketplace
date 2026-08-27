@@ -4,6 +4,10 @@ export interface IBlog extends Document {
   image: string;
   title: string;
   content: string;
+  slug: string;
+  metaTitle: string;
+  metaDescription: string;
+  metaKeywords: string;
   isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;
